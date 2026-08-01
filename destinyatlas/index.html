@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Destiny Atlas — YikJin</title>
+<meta name="description" content="Destiny Atlas — choose a reading tradition, provide your details once, and generate a structured reading.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="../favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Cormorant+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #171613;
+    --ink-soft: #57544c;
+    --paper: #ffffff;
+    --hairline: #E9E7E0;
+    --gold: #9C8355;
+    --surface: #FBFAF9;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html, body{ height:100%; }
+
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  a{ color:inherit; }
+
+  /* ---------- header / footer (matches site pattern) ---------- */
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 2rem clamp(1.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .logo{
+    font-family: 'Parisienne', cursive;
+    font-size: 1.9rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  header nav{ display:flex; align-items:center; gap: clamp(1.25rem, 3vw, 2rem); }
+
+  header nav a{
+    color: var(--ink-soft);
+    text-decoration:none;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  header nav a:hover{ color: var(--ink); border-bottom-color: var(--ink); }
+
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+  textarea:focus-visible, [tabindex]:focus-visible{
+    outline: 1px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  footer{ display:flex; justify-content:center; padding: 3rem 2rem 2.5rem; }
+  footer p{ font-size: 0.68rem; letter-spacing: 0.1em; color: #a8a49a; text-transform: uppercase; }
+
+  /* ---------- page shell ---------- */
+
+  main{
+    flex:1;
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 6vw, 4rem) 2rem;
+  }
+
+  section{ margin-bottom: clamp(3rem, 7vw, 4.5rem); }
+
+  .hero{ text-align:center; max-width: 640px; margin: 0 auto clamp(3rem, 7vw, 4.5rem); }
+
+  .eyebrow{
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+  }
+
+  .hero h1{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2.25rem, 6vw, 3rem);
+    margin-bottom: 1.1rem;
+  }
+
+  .hero .sub{ font-size: 0.95rem; line-height:1.65; color: var(--ink-soft); margin-bottom: 0.85rem; }
+  .hero .supporting{ font-size: 0.82rem; line-height:1.6; color: #8a877e; }
+
+  .section-head{ text-align:center; margin-bottom: 2rem; }
+  .section-head .eyebrow{ margin-bottom: 0.6rem; }
+  .section-head h2{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.5rem, 4vw, 1.9rem);
+    margin-bottom: 0.6rem;
+  }
+  .section-head p{ font-size: 0.85rem; color: var(--ink-soft); }
+
+  /* ---------- reading cards ---------- */
+
+  .card-grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px){
+    .card-grid{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1000px){
+    .card-grid{ grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .reading-card{
+    text-align:left;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 1.5rem;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap: 0.7rem;
+    min-height: 44px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    font-family: inherit;
+    color: inherit;
+  }
+
+  .reading-card:hover{ border-color: var(--gold); transform: translateY(-2px); }
+
+  .reading-card.is-selected{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold);
+    background: var(--surface);
+  }
+
+  .reading-card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap: 0.75rem; }
+
+  .reading-card h3{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.2rem;
+  }
+
+  .culture-tag{
+    font-size: 0.63rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    white-space:nowrap;
+  }
+
+  .select-indicator{
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--hairline);
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition: all 0.2s ease;
+  }
+
+  .reading-card.is-selected .select-indicator{ background: var(--gold); border-color: var(--gold); }
+  .select-indicator::after{
+    content:'';
+    width:8px; height:8px;
+    border-radius:50%;
+    background: var(--paper);
+    opacity:0;
+    transition: opacity 0.15s ease;
+  }
+  .reading-card.is-selected .select-indicator::after{ opacity:1; }
+
+  .reading-card p.desc{ font-size: 0.82rem; line-height:1.55; color: var(--ink-soft); }
+  .reading-card p.best-for{ font-size: 0.76rem; line-height:1.5; color: var(--ink); }
+  .reading-card p.best-for strong{ font-weight:500; color: var(--ink-soft); }
+  .reading-card p.required-preview{
+    font-size: 0.72rem;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--hairline);
+  }
+
+  /* ---------- form ---------- */
+
+  .form-shell{
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+  }
+
+  .form-empty-state{ font-size: 0.85rem; color: var(--ink-soft); text-align:center; padding: 1rem 0; }
+
+  .field-grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 640px){
+    .field-grid{ grid-template-columns: 1fr 1fr; }
+    .field-grid .field.span-2{ grid-column: 1 / -1; }
+  }
+
+  .field label{
+    display:block;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.5rem;
+  }
+
+  .field input[type="text"],
+  .field input[type="date"],
+  .field input[type="time"],
+  .field select,
+  .field textarea{
+    width:100%;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    padding: 0.65rem 0.75rem;
+    min-height: 44px;
+  }
+
+  .field textarea{ min-height: 80px; resize: vertical; }
+
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color: var(--gold); }
+
+  .field-hint{ font-size: 0.74rem; color: #8a877e; margin-top: 0.4rem; }
+
+  /* chips */
+  .chip-group{ display:flex; flex-wrap:wrap; gap: 0.5rem; }
+  .chip{
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    font-size: 0.78rem;
+    cursor:pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    display:flex;
+    align-items:center;
+  }
+  .chip:hover{ border-color: var(--gold); color: var(--ink); }
+  .chip.is-active{ background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+  /* segmented control */
+  .segmented{
+    display:inline-flex;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    overflow:hidden;
+    width:100%;
+  }
+  .segmented button{
+    flex:1;
+    background: var(--paper);
+    border:none;
+    color: var(--ink-soft);
+    font-family:'Inter', sans-serif;
+    font-size: 0.8rem;
+    padding: 0.65rem 0.5rem;
+    cursor:pointer;
+    min-height: 44px;
+    transition: all 0.2s ease;
+    border-right: 1px solid var(--hairline);
+  }
+  .segmented button:last-child{ border-right:none; }
+  .segmented button.is-active{ background: var(--ink); color: var(--paper); }
+
+  /* toggle */
+  .toggle-field{ display:flex; align-items:center; gap: 0.65rem; cursor:pointer; }
+  .toggle-field input[type="checkbox"]{
+    appearance:none; -webkit-appearance:none;
+    width: 34px; height: 20px;
+    border-radius: 999px;
+    background: var(--hairline);
+    position: relative;
+    cursor:pointer;
+    transition: background 0.2s ease;
+    flex-shrink:0;
+  }
+  .toggle-field input[type="checkbox"]::after{
+    content:'';
+    position:absolute; top:2px; left:2px;
+    width:16px; height:16px;
+    border-radius:50%;
+    background: var(--paper);
+    transition: transform 0.2s ease;
+  }
+  .toggle-field input[type="checkbox"]:checked{ background: var(--gold); }
+  .toggle-field input[type="checkbox"]:checked::after{ transform: translateX(14px); }
+  .toggle-field span{ font-size: 0.82rem; color: var(--ink); }
+
+  /* manual hexagram line picker */
+  .line-picker{ display:flex; flex-direction:column-reverse; gap: 0.5rem; }
+  .line-row{ display:flex; align-items:center; gap: 0.75rem; }
+  .line-row .line-label{ font-size: 0.72rem; color: var(--ink-soft); width: 3.5rem; text-transform:none; letter-spacing:0; margin:0; }
+  .line-row .segmented{ flex:1; }
+
+  /* ---------- requirements summary ---------- */
+
+  .requirements-panel{
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 1.5rem 1.75rem;
+    background: var(--paper);
+  }
+  .requirements-panel h3{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.15rem;
+    margin-bottom: 0.9rem;
+  }
+  .requirements-panel ul{ list-style:none; display:flex; flex-direction:column; gap: 0.5rem; }
+  .requirements-panel li{ font-size: 0.83rem; color: var(--ink-soft); line-height:1.55; padding-left: 1.1rem; position:relative; }
+  .requirements-panel li::before{ content:'—'; position:absolute; left:0; color: var(--gold); }
+  .requirements-panel .limitation{ margin-top: 0.9rem; padding-top:0.9rem; border-top:1px solid var(--hairline); font-size: 0.8rem; color: #8a877e; font-style:italic; }
+
+  /* ---------- CTA row ---------- */
+
+  .cta-row{ display:flex; gap: 1rem; justify-content:center; flex-wrap:wrap; }
+
+  .btn-primary{
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    padding: 0.85rem 2rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor:pointer;
+    min-height: 44px;
+    transition: opacity 0.2s ease;
+  }
+  .btn-primary:hover{ opacity:0.85; }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .btn-secondary{
+    background:none;
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 0.85rem 1.75rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    cursor:pointer;
+    min-height: 44px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .btn-secondary:hover{ border-color: var(--gold); color: var(--gold); }
+
+  .form-error{ text-align:center; font-size: 0.8rem; color: #7A2E2E; margin-top: 1rem; min-height: 1.2em; }
+
+  /* ---------- results ---------- */
+
+  #results:not(.has-results){ display:none; }
+
+  .results-intro{ text-align:center; margin-bottom: 2rem; }
+
+  .result-card{
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: clamp(1.5rem, 4vw, 2rem);
+    margin-bottom: 1.5rem;
+  }
+
+  .result-card-head{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom: 1rem; }
+  .result-card-head h3{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.35rem;
+  }
+  .result-card-head .culture-tag{ margin-top: 0.2rem; }
+
+  .result-inputs{ font-size: 0.76rem; color: var(--ink-soft); margin-bottom: 1.25rem; line-height:1.6; }
+  .result-inputs span{ display:inline-block; margin-right: 1.1rem; }
+
+  .result-block{ margin-bottom: 1.1rem; }
+  .result-block:last-child{ margin-bottom:0; }
+  .result-block .label{ font-size: 0.68rem; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); margin-bottom: 0.35rem; }
+  .result-block .value{ font-size: 0.88rem; line-height:1.65; color: var(--ink); }
+  .result-block .value.snapshot{ font-size: 1.05rem; font-family:'Cormorant Garamond', serif; font-style:italic; }
+  .result-block .value.muted{ color: var(--ink-soft); font-size: 0.8rem; font-style:italic; }
+
+  .hex-symbol{ font-family: monospace; font-size: 0.85rem; line-height:1.8; white-space:pre; color: var(--ink); background:var(--surface); padding:0.75rem 1rem; border-radius:4px; display:inline-block; }
+
+  .framework-badge{
+    display:inline-block;
+    font-size: 0.65rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color: var(--ink-soft);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+    margin-left: 0.6rem;
+  }
+
+  .results-actions{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top: 2rem; }
+
+  .disclaimer{ max-width: 640px; margin: 2.5rem auto 0; text-align:center; font-size: 0.78rem; color: #8a877e; line-height:1.65; }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip: rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="../index.html">YikJin</a>
+    <nav aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../projects.html">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Multi-tradition reading platform</p>
+      <h1>Destiny Atlas</h1>
+      <p class="sub">Choose from time-tested reading traditions across cultures. Select one or more systems, see what information each one requires, and begin with a structured reading based on your data.</p>
+      <p class="supporting">Different traditions examine different aspects of life. Some rely on birth details, while others begin with a question.</p>
+    </section>
+
+    <section aria-labelledby="cards-heading">
+      <div class="section-head">
+        <p class="eyebrow">Reading traditions</p>
+        <h2 id="cards-heading">Choose your reading</h2>
+        <p>Select one or more traditions to see the information required.</p>
+      </div>
+      <div class="card-grid" id="reading-cards" role="group" aria-label="Reading traditions"></div>
+    </section>
+
+    <section aria-labelledby="form-heading">
+      <div class="section-head">
+        <p class="eyebrow">Your details</p>
+        <h2 id="form-heading">Provide your details once</h2>
+        <p>Only the fields your selected readings actually need are shown.</p>
+      </div>
+      <form class="form-shell" id="details-form" novalidate>
+        <p class="form-empty-state" id="form-empty-state">Select a reading above to see the form.</p>
+        <div class="field-grid" id="dynamic-fields" hidden></div>
+      </form>
+    </section>
+
+    <section aria-labelledby="requirements-heading" id="requirements-section" hidden>
+      <div class="requirements-panel">
+        <h3 id="requirements-heading">What we need for this reading</h3>
+        <ul id="requirements-list"></ul>
+        <p class="limitation" id="requirements-limitation" hidden></p>
+      </div>
+    </section>
+
+    <section>
+      <div class="cta-row">
+        <button type="button" class="btn-primary" id="generate-btn" disabled>Generate my reading</button>
+        <button type="button" class="btn-secondary" id="reset-btn">Reset</button>
+      </div>
+      <p class="form-error" id="form-error" role="alert"></p>
+    </section>
+
+    <section id="results">
+      <div class="results-intro">
+        <p class="eyebrow">Your reading</p>
+        <h2 style="font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:clamp(1.6rem,4vw,2.1rem);">Structured reading summary</h2>
+      </div>
+      <div id="results-list"></div>
+      <div class="results-actions">
+        <button type="button" class="btn-secondary" id="edit-inputs-btn">Edit inputs</button>
+        <button type="button" class="btn-secondary" id="reset-results-btn">Reset</button>
+      </div>
+      <p class="disclaimer">This version provides a structured interpretation based on the selected system and the information provided. Chart-based systems are more precise when an exact birth time is known. I Ching is best used for situational guidance rather than fixed prediction.</p>
+    </section>
+
+    <div id="live-region" class="sr-only" aria-live="polite"></div>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Yik Jin</p>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
