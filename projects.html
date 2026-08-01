@@ -64,16 +64,21 @@
     border-bottom-color: var(--ink);
   }
 
+  a:focus-visible{
+    outline: 1px solid var(--gold);
+    outline-offset: 3px;
+  }
+
   main{
     flex: 1;
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
-    text-align:center;
-    gap: 0.75rem;
-    padding: 3rem 2rem;
+    gap: 2.5rem;
+    padding: clamp(2.5rem, 8vh, 4.5rem) 2rem 3rem;
   }
+
+  .page-intro{ text-align:center; display:flex; flex-direction:column; gap:0.75rem; }
 
   main h1{
     font-family: 'Cormorant Garamond', serif;
@@ -83,10 +88,49 @@
     color: var(--ink);
   }
 
-  main p{
+  main > .page-intro > p{
     font-size: 0.85rem;
     color: var(--ink-soft);
     letter-spacing: 0.02em;
+  }
+
+  .project-list{
+    list-style:none;
+    width:100%;
+    max-width: 560px;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .project-item{ border-bottom: 1px solid var(--hairline); }
+
+  .project-link{
+    display:flex;
+    flex-direction:column;
+    gap: 0.35rem;
+    text-align:left;
+    text-decoration:none;
+    padding: 1.4rem 0.25rem;
+    transition: transform 0.2s ease;
+  }
+
+  .project-link:hover{ transform: translateX(4px); }
+
+  .project-name{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.2rem;
+    color: var(--ink);
+    transition: color 0.2s ease;
+  }
+
+  .project-link:hover .project-name{ color: var(--gold); }
+
+  .project-desc{
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+    line-height:1.5;
   }
 
   footer{
@@ -113,8 +157,19 @@
   </header>
 
   <main>
-    <h1>Projects</h1>
-    <p>A collection of web work — coming soon.</p>
+    <div class="page-intro">
+      <h1>Projects</h1>
+      <p>A collection of web work.</p>
+    </div>
+
+    <ul class="project-list">
+      <li class="project-item">
+        <a class="project-link" href="growthsim/index.html">
+          <span class="project-name">GrowthSim</span>
+          <span class="project-desc">An interactive compound interest &amp; investment growth simulator — real-time inputs, variable-rate modeling, and a shareable-link scenario state.</span>
+        </a>
+      </li>
+    </ul>
   </main>
 
   <footer>

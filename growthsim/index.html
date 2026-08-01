@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>GrowthSim — YikJin</title>
+<meta name="description" content="GrowthSim — an interactive compound interest and investment growth simulator.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="../favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Cormorant+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #171613;
+    --ink-soft: #57544c;
+    --paper: #ffffff;
+    --hairline: #E9E7E0;
+    --gold: #9C8355;
+    --surface: #FBFAF9;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html, body{ height:100%; }
+
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  a{ color:inherit; }
+
+  /* ---------- header / footer (matches site pattern) ---------- */
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 2rem clamp(1.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .logo{
+    font-family: 'Parisienne', cursive;
+    font-size: 1.9rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  header nav{ display:flex; align-items:center; gap: clamp(1.25rem, 3vw, 2rem); }
+
+  header nav a{
+    color: var(--ink-soft);
+    text-decoration:none;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  header nav a:hover{ color: var(--ink); border-bottom-color: var(--ink); }
+  a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible{
+    outline: 1px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  footer{ display:flex; justify-content:center; padding: 3rem 2rem 2.5rem; }
+  footer p{
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: #a8a49a;
+    text-transform: uppercase;
+  }
+
+  /* ---------- page shell ---------- */
+
+  main{
+    flex:1;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 6vw, 4rem) 2rem;
+  }
+
+  .intro{ text-align:center; max-width: 640px; margin: 0 auto clamp(2.5rem, 6vw, 3.5rem); }
+
+  .eyebrow{
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+  }
+
+  .intro h1{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    margin-bottom: 0.9rem;
+  }
+
+  .intro p{ font-size: 0.92rem; line-height:1.65; color: var(--ink-soft); }
+
+  /* ---------- tool grid ---------- */
+
+  .tool-grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items:start;
+  }
+
+  @media (min-width: 1024px){
+    .tool-grid{ grid-template-columns: 360px 1fr; gap: 3rem; }
+  }
+
+  /* ---------- controls ---------- */
+
+  .controls{
+    display:flex;
+    flex-direction:column;
+    gap: 1.5rem;
+    padding: 1.75rem;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+
+  .control-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .control label{
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .control-head input[type="number"]{
+    width: 6.5rem;
+    text-align:right;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .control-head input[type="number"]:focus{ outline:none; border-color: var(--gold); }
+
+  input[type="range"]{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--hairline);
+    border-radius: 999px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+
+  input[type="range"]::-moz-range-thumb{
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+
+  select{
+    width:100%;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.6rem;
+  }
+  select:focus{ outline:none; border-color: var(--gold); }
+
+  .toggle-row{ display:flex; flex-direction:column; gap: 0.75rem; }
+
+  .toggle{
+    display:flex;
+    align-items:center;
+    gap: 0.65rem;
+    cursor:pointer;
+    font-size: 0.8rem;
+    color: var(--ink);
+  }
+
+  .toggle input[type="checkbox"]{
+    appearance:none;
+    -webkit-appearance:none;
+    width: 34px; height: 20px;
+    border-radius: 999px;
+    background: var(--hairline);
+    position: relative;
+    cursor:pointer;
+    transition: background 0.2s ease;
+    flex-shrink:0;
+  }
+
+  .toggle input[type="checkbox"]::after{
+    content:'';
+    position:absolute;
+    top:2px; left:2px;
+    width:16px; height:16px;
+    border-radius:50%;
+    background: var(--paper);
+    transition: transform 0.2s ease;
+  }
+
+  .toggle input[type="checkbox"]:checked{ background: var(--gold); }
+  .toggle input[type="checkbox"]:checked::after{ transform: translateX(14px); }
+
+  .inline-sub{ padding-left: 0.1rem; }
+  .inline-sub .control-head{ margin-bottom:0; }
+  .inline-sub input[type="number"]{ width:5rem; }
+
+  .advanced-panel:not([hidden]){ display:flex; flex-direction:column; gap: 0.85rem; padding-top: 0.25rem; }
+  .advanced-panel .hint{ font-size: 0.76rem; color: var(--ink-soft); line-height:1.5; }
+
+  .band-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: var(--paper);
+    flex-wrap: wrap;
+  }
+
+  .band-row .band-years{ display:flex; align-items:center; gap: 0.35rem; color: var(--ink-soft); }
+  .band-row .band-years span{ white-space:nowrap; }
+  .band-row input[type="number"]{
+    width: 3.6rem;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.8rem;
+    font-family: 'Inter', sans-serif;
+  }
+  .band-row .band-rate-label{ display:flex; align-items:center; gap: 0.3rem; color: var(--ink); text-transform:none; letter-spacing:0; }
+  .band-row .band-rate{ width: 3.2rem; }
+
+  .remove-band{
+    background:none;
+    border:none;
+    color: var(--ink-soft);
+    cursor:pointer;
+    font-size: 1rem;
+    line-height:1;
+    padding: 0.2rem 0.35rem;
+  }
+  .remove-band:hover{ color: var(--ink); }
+
+  .btn-secondary{
+    align-self:flex-start;
+    background:none;
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    border-radius: 4px;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    cursor:pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .btn-secondary:hover{ border-color: var(--gold); color: var(--gold); }
+
+  /* ---------- results ---------- */
+
+  .results{ display:flex; flex-direction:column; gap: 1.5rem; }
+
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    overflow:hidden;
+  }
+
+  @media (min-width: 560px){
+    .stats{ grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .stat{ background: var(--paper); padding: 1.1rem 1.15rem; }
+  .stat-label{ font-size: 0.65rem; letter-spacing: 0.08em; text-transform:uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+  .stat-value{ font-size: clamp(1.1rem, 2.4vw, 1.4rem); font-variant-numeric: tabular-nums; }
+  .stat-value.accent{ color: var(--gold); }
+
+  .chart-card{
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 1.5rem;
+  }
+
+  .chart-card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .chart-card-head h2{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.25rem;
+  }
+
+  .view-toggle{ display:flex; gap: 0.4rem; }
+
+  .chip{
+    background:none;
+    border: 1px solid var(--hairline);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    cursor:pointer;
+    transition: all 0.2s ease;
+  }
+  .chip.is-active{ background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .chip:not(.is-active):hover{ border-color: var(--gold); color: var(--ink); }
+
+  .chart-card canvas{ width:100%; max-height: 340px; }
+  .chart-loading{ font-size: 0.8rem; color: var(--ink-soft); padding: 3rem 0; text-align:center; }
+
+  .sr-only{
+    position:absolute;
+    width:1px; height:1px;
+    padding:0; margin:-1px;
+    overflow:hidden;
+    clip: rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
+
+  /* ---------- data table ---------- */
+
+  .data-table{ margin-top: 2.5rem; border: 1px solid var(--hairline); border-radius: 6px; overflow:hidden; }
+
+  .data-table summary{
+    cursor:pointer;
+    padding: 1rem 1.25rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    background: var(--surface);
+    list-style: none;
+  }
+  .data-table summary::-webkit-details-marker{ display:none; }
+  .data-table summary::before{ content:'▸ '; color: var(--gold); }
+  .data-table[open] summary::before{ content:'▾ '; }
+
+  .table-scroll{ overflow-x:auto; }
+
+  table{ width:100%; border-collapse: collapse; font-size: 0.8rem; }
+  thead th{
+    text-align:right;
+    font-weight:500;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform:uppercase;
+    color: var(--ink-soft);
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--hairline);
+    white-space:nowrap;
+  }
+  thead th:first-child, tbody td:first-child{ text-align:left; }
+  tbody td{
+    text-align:right;
+    padding: 0.55rem 1rem;
+    border-bottom: 1px solid var(--hairline);
+    font-variant-numeric: tabular-nums;
+    white-space:nowrap;
+  }
+  tbody tr:last-child td{ border-bottom:none; }
+
+  /* ---------- prose sections ---------- */
+
+  .prose-section{ max-width: 720px; margin: 3.5rem auto 0; }
+  .prose-section h2{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.6rem;
+    margin-bottom: 1.25rem;
+  }
+  .prose-section p{ font-size: 0.9rem; line-height:1.75; color: var(--ink-soft); margin-bottom: 1.1rem; }
+  .prose-section p:last-child{ margin-bottom:0; }
+  .prose-section strong{ color: var(--ink); font-weight: 500; }
+
+  @media (max-width: 480px){
+    .band-row{ font-size: 0.76rem; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="../index.html">YikJin</a>
+    <nav aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../projects.html">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">Interactive tool</p>
+      <h1>GrowthSim</h1>
+      <p>A compound interest and investment growth simulator. Adjust any input below and the projection updates instantly — no submit button.</p>
+    </section>
+
+    <div class="tool-grid">
+      <form class="controls" aria-label="Investment inputs" novalidate>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="principal-number">Initial principal (SGD)</label>
+            <input type="number" id="principal-number" min="0" max="1000000" step="100" value="10000" inputmode="numeric">
+          </div>
+          <input type="range" id="principal-range" min="0" max="1000000" step="100" value="10000" aria-label="Initial principal in Singapore dollars">
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="monthly-number">Monthly contribution (SGD)</label>
+            <input type="number" id="monthly-number" min="0" max="20000" step="50" value="500" inputmode="numeric">
+          </div>
+          <input type="range" id="monthly-range" min="0" max="20000" step="50" value="500" aria-label="Monthly contribution in Singapore dollars">
+        </div>
+
+        <div class="control" id="flat-rate-control">
+          <div class="control-head">
+            <label for="rate-number">Annual return rate (%)</label>
+            <input type="number" id="rate-number" min="0" max="20" step="0.1" value="7">
+          </div>
+          <input type="range" id="rate-range" min="0" max="20" step="0.1" value="7" aria-label="Annual return rate percent">
+        </div>
+
+        <div class="control">
+          <div class="control-head">
+            <label for="years-number">Time horizon (years)</label>
+            <input type="number" id="years-number" min="1" max="40" step="1" value="20">
+          </div>
+          <input type="range" id="years-range" min="1" max="40" step="1" value="20" aria-label="Time horizon in years">
+        </div>
+
+        <div class="control">
+          <label for="compounding-select" style="display:block; margin-bottom:0.55rem;">Compounding frequency</label>
+          <select id="compounding-select">
+            <option value="monthly" selected>Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="annually">Annually</option>
+          </select>
+        </div>
+
+        <div class="control toggle-row">
+          <label class="toggle" for="advanced-toggle">
+            <input type="checkbox" id="advanced-toggle">
+            <span>Advanced mode — variable rates by year</span>
+          </label>
+        </div>
+
+        <div class="advanced-panel" id="advanced-panel" hidden>
+          <p class="hint">Set a different return rate for each time band. Bands always cover year 1 through the full time horizon.</p>
+          <div id="bands-list"></div>
+          <button type="button" class="btn-secondary" id="add-band">+ Add band</button>
+        </div>
+
+        <div class="control toggle-row">
+          <label class="toggle" for="inflation-toggle">
+            <input type="checkbox" id="inflation-toggle">
+            <span>Adjust for inflation</span>
+          </label>
+          <div class="control inline-sub" id="inflation-rate-row" hidden>
+            <div class="control-head">
+              <label for="inflation-number">Inflation rate (% / yr)</label>
+              <input type="number" id="inflation-number" min="0" max="10" step="0.1" value="3">
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <div class="results">
+        <div class="stats" id="stats" role="group" aria-label="Summary results">
+          <div class="stat">
+            <div class="stat-label">Final balance</div>
+            <div class="stat-value accent" id="stat-final">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Total contributed</div>
+            <div class="stat-value" id="stat-contributed">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Total interest earned</div>
+            <div class="stat-value" id="stat-interest">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Interest as % of balance</div>
+            <div class="stat-value" id="stat-share">—</div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-head">
+            <h2>Growth over time</h2>
+            <div class="view-toggle" role="group" aria-label="Chart value basis">
+              <button type="button" class="chip is-active" id="view-nominal" aria-pressed="true">Nominal</button>
+              <button type="button" class="chip" id="view-real" aria-pressed="false">Inflation-adjusted</button>
+            </div>
+          </div>
+          <p class="chart-loading" id="chart-loading">Loading chart…</p>
+          <canvas id="growthChart" role="img" aria-label="Chart of cumulative contributions and interest earned by year" height="320" hidden></canvas>
+        </div>
+
+        <div id="live-region" class="sr-only" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <details class="data-table">
+      <summary>Year-by-year breakdown</summary>
+      <div class="table-scroll">
+        <table id="breakdown-table">
+          <thead>
+            <tr>
+              <th scope="col">Year</th>
+              <th scope="col">Rate</th>
+              <th scope="col">Contributions</th>
+              <th scope="col">Interest earned</th>
+              <th scope="col">Balance</th>
+            </tr>
+          </thead>
+          <tbody id="breakdown-tbody"></tbody>
+        </table>
+      </div>
+    </details>
+
+    <section class="prose-section case-study">
+      <h2>How this was built</h2>
+      <p><strong>The problem.</strong> A single projected number — "your money grows to $X" — doesn't build intuition for how compounding actually works. Most of the growth in a long time horizon comes from interest earning interest, not from the contributions themselves, and that's hard to feel without seeing the shape of the curve and watching it respond as assumptions change.</p>
+      <p><strong>The key decision.</strong> The math lives in <code>calc.js</code>, a pure function that takes a plain inputs object and returns a plain array of yearly results — no DOM, no rendering, no side effects. <code>app.js</code> owns everything about state, sliders, and the chart. That separation means the engine can be reasoned about (or unit-tested) independently of the UI, and the UI can be redesigned without touching the math.</p>
+      <p><strong>The hard part.</strong> Getting the chart to feel instant while dragging a slider, without either lagging or flickering. Inputs are batched with <code>requestAnimationFrame</code> so a burst of slider events collapses into one recalculation per frame, and the chart updates by mutating its existing dataset arrays rather than being destroyed and recreated — Chart.js then animates between the old and new shape instead of a hard cut.</p>
+      <p><strong>What I'd improve.</strong> The current model projects a single deterministic path from a fixed rate (or fixed rate bands). A more honest picture of investing risk would run a Monte Carlo simulation across a distribution of return sequences and show a range — a median path plus a spread — rather than one line implying certainty it doesn't have.</p>
+    </section>
+
+    <section class="prose-section" id="about-tool">
+      <h2>About this tool</h2>
+      <p>GrowthSim projects growth using standard compound interest: at each compounding period, interest is calculated on the current balance and added to it, then the period's contribution is added. Monthly contributions are converted to match whichever compounding frequency is selected. Inflation-adjusted figures deflate each year's nominal contributions and balance by the cumulative inflation rate, expressing results in today's purchasing power. This tool is for illustrative purposes only — it does not account for fees, taxes, or real-world market volatility, and is not investment advice.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Yik Jin</p>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
