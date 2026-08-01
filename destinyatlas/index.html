@@ -333,12 +333,6 @@
   .toggle-field input[type="checkbox"]:checked::after{ transform: translateX(14px); }
   .toggle-field span{ font-size: 0.82rem; color: var(--ink); }
 
-  /* manual hexagram line picker */
-  .line-picker{ display:flex; flex-direction:column-reverse; gap: 0.5rem; }
-  .line-row{ display:flex; align-items:center; gap: 0.75rem; }
-  .line-row .line-label{ font-size: 0.72rem; color: var(--ink-soft); width: 3.5rem; text-transform:none; letter-spacing:0; margin:0; }
-  .line-row .segmented{ flex:1; }
-
   /* ---------- requirements summary ---------- */
 
   .requirements-panel{
@@ -397,7 +391,68 @@
 
   /* ---------- results ---------- */
 
-  #results:not(.has-results){ display:none; }
+  .processing-panel{
+    text-align:center;
+    padding: clamp(2.5rem, 6vw, 3.5rem) 1.5rem;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .processing-heading{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.3rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .processing-dots::after{
+    content: '';
+    display:inline-block;
+    width: 1.4em;
+    text-align:left;
+    animation: processing-ellipsis 1.4s steps(4, end) infinite;
+  }
+  @keyframes processing-ellipsis{
+    0%{ content: ''; }
+    25%{ content: '.'; }
+    50%{ content: '..'; }
+    75%{ content: '...'; }
+    100%{ content: ''; }
+  }
+
+  .processing-steps{ list-style:none; display:flex; flex-direction:column; gap: 0.75rem; max-width: 360px; margin: 0 auto; }
+  .processing-step{
+    display:flex;
+    align-items:center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    opacity: 0.45;
+    transition: opacity 0.3s ease;
+  }
+  .processing-step .dot{
+    width: 8px; height:8px;
+    border-radius:50%;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+    flex-shrink:0;
+    transition: all 0.3s ease;
+  }
+  .processing-step.is-active{ opacity:1; color: var(--ink); }
+  .processing-step.is-active .dot{ background: var(--gold); border-color: var(--gold); animation: processing-pulse 1s ease-in-out infinite; }
+  .processing-step.is-done{ opacity:0.85; color: var(--ink); }
+  .processing-step.is-done .dot{ background: var(--ink); border-color: var(--ink); }
+  @keyframes processing-pulse{
+    0%, 100%{ transform: scale(1); opacity:1; }
+    50%{ transform: scale(1.4); opacity:0.6; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .processing-dots::after{ animation:none; content:'…'; }
+    .processing-step.is-active .dot{ animation:none; }
+  }
 
   .results-intro{ text-align:center; margin-bottom: 2rem; }
 
@@ -426,8 +481,6 @@
   .result-block .value{ font-size: 0.88rem; line-height:1.65; color: var(--ink); }
   .result-block .value.snapshot{ font-size: 1.05rem; font-family:'Cormorant Garamond', serif; font-style:italic; }
   .result-block .value.muted{ color: var(--ink-soft); font-size: 0.8rem; font-style:italic; }
-
-  .hex-symbol{ font-family: monospace; font-size: 0.85rem; line-height:1.8; white-space:pre; color: var(--ink); background:var(--surface); padding:0.75rem 1rem; border-radius:4px; display:inline-block; }
 
   .framework-badge{
     display:inline-block;
@@ -466,7 +519,7 @@
       <p class="eyebrow">Multi-tradition reading platform</p>
       <h1>Destiny Atlas</h1>
       <p class="sub">Choose from time-tested reading traditions across cultures. Select one or more systems, see what information each one requires, and begin with a structured reading based on your data.</p>
-      <p class="supporting">Different traditions examine different aspects of life. Some rely on birth details, while others begin with a question.</p>
+      <p class="supporting">Different traditions examine different aspects of life, each drawing on its own combination of birth details.</p>
     </section>
 
     <section aria-labelledby="cards-heading">
@@ -506,17 +559,23 @@
       <p class="form-error" id="form-error" role="alert"></p>
     </section>
 
-    <section id="results">
-      <div class="results-intro">
-        <p class="eyebrow">Your reading</p>
-        <h2 style="font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:clamp(1.6rem,4vw,2.1rem);">Structured reading summary</h2>
+    <section id="results" hidden>
+      <div class="processing-panel" id="processing-panel" hidden>
+        <p class="processing-heading">Analyzing your reading<span class="processing-dots" aria-hidden="true"></span></p>
+        <ul class="processing-steps" id="processing-steps"></ul>
       </div>
-      <div id="results-list"></div>
-      <div class="results-actions">
-        <button type="button" class="btn-secondary" id="edit-inputs-btn">Edit inputs</button>
-        <button type="button" class="btn-secondary" id="reset-results-btn">Reset</button>
+      <div class="results-content" id="results-content" hidden>
+        <div class="results-intro">
+          <p class="eyebrow">Your reading</p>
+          <h2 style="font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; font-size:clamp(1.6rem,4vw,2.1rem);">Structured reading summary</h2>
+        </div>
+        <div id="results-list"></div>
+        <div class="results-actions">
+          <button type="button" class="btn-secondary" id="edit-inputs-btn">Edit inputs</button>
+          <button type="button" class="btn-secondary" id="reset-results-btn">Reset</button>
+        </div>
+        <p class="disclaimer">This version provides a structured interpretation based on the selected system and the information provided. Chart-based systems are more precise when an exact birth time is known — treat every reading here as a starting point for reflection, not a fixed prediction.</p>
       </div>
-      <p class="disclaimer">This version provides a structured interpretation based on the selected system and the information provided. Chart-based systems are more precise when an exact birth time is known. I Ching is best used for situational guidance rather than fixed prediction.</p>
     </section>
 
     <div id="live-region" class="sr-only" aria-live="polite"></div>

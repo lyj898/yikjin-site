@@ -78,16 +78,74 @@ const FOCUS_NOTES = {
   timing: 'how this number experiences cycles and change over time',
 };
 
+const PERSONAL_YEAR_THEMES = {
+  1: 'a beginning-of-cycle year — new starts, new initiative',
+  2: 'a year for patience and partnership rather than solo pushes',
+  3: 'a year favoring expression, visibility, and social momentum',
+  4: 'a year for consolidation — building foundations, not shortcuts',
+  5: 'a year of change and movement; plans may shift more than usual',
+  6: 'a year centered on responsibility — home, family, or care',
+  7: 'a year suited to reflection, study, and stepping back',
+  8: 'a year where effort and ambition tend to compound visibly',
+  9: 'a closing-of-cycle year — completion, release, and review',
+};
+
+// Personal year cycles conventionally reduce to a single digit (1-9)
+// rather than preserving master numbers.
+function personalYearTheme(year) {
+  const single = year > 9 ? reduceNumber(String(year).split('').reduce((a, d) => a + Number(d), 0)) : year;
+  return PERSONAL_YEAR_THEMES[single] || PERSONAL_YEAR_THEMES[1];
+}
+
+const BIRTHDAY_TRAITS = {
+  1: 'self-starting', 2: 'cooperative', 3: 'expressive', 4: 'methodical',
+  5: 'adaptable', 6: 'caretaking', 7: 'analytical', 8: 'driven', 9: 'idealistic',
+  11: 'perceptive', 22: 'systematic', 33: 'nurturing',
+};
+
+/**
+ * Birthday number — the day-of-month reduced on its own, a secondary,
+ * faster-moving indicator layered on top of the Life Path.
+ */
+export function birthdayNumber(dob) {
+  const [, , d] = dob.split('-').map(Number);
+  return reduceNumber(d);
+}
+
 /**
  * Builds the full structured numerology result for the results view.
- * @param {{ fullName: string, dob: string, focus: string }} inputs
+ * @param {{ fullName: string, dob: string, focus: string, depth?: string }} inputs
  */
 export function buildNumerologyReading(inputs) {
   const lifePath = lifePathNumber(inputs.dob);
   const expression = inputs.fullName ? expressionNumber(inputs.fullName) : null;
-  const year = personalYearNumber(inputs.dob);
+  const birthday = birthdayNumber(inputs.dob);
+  const currentYear = new Date().getFullYear();
+  const year = personalYearNumber(inputs.dob, currentYear);
   const profile = LIFE_PATH_PROFILES[lifePath];
   const focusNote = FOCUS_NOTES[inputs.focus] || FOCUS_NOTES.general;
+
+  const extraBlocks = [];
+  extraBlocks.push({
+    label: 'Expression number',
+    value: expression
+      ? `Expression Number ${expression}, calculated from the letters of the full birth name, reflects the natural way Life Path ${lifePath} tends to be outwardly expressed — often visible in how this person communicates and works before you get to know them more closely.`
+      : 'Add a full birth name to also calculate an Expression Number.',
+  });
+  extraBlocks.push({
+    label: 'Birthday number',
+    value: `Birthday Number ${birthday} (from the day of the month alone) adds a faster-moving, more surface-level layer: a tendency to come across as ${BIRTHDAY_TRAITS[birthday] || 'distinct'} in day-to-day situations, even where the Life Path runs deeper.`,
+  });
+  extraBlocks.push({
+    label: `Personal year — ${currentYear}`,
+    value: `Personal Year ${year}: ${personalYearTheme(year)}.`,
+  });
+  if (expression && expression !== lifePath) {
+    extraBlocks.push({
+      label: 'Life Path & Expression together',
+      value: `Life Path ${lifePath} (${profile.title}) describes the underlying direction; Expression ${expression} describes the outward style. Where they differ, the gap itself is often informative — the inner motivation and the outward approach are pulling from two related but distinct numbers rather than one.`,
+    });
+  }
 
   return {
     system: 'numerology',
@@ -99,10 +157,7 @@ export function buildNumerologyReading(inputs) {
     strengths: profile.strengths,
     watchOuts: profile.watchOuts,
     focusInterpretation: `For ${focusNote}, Life Path ${lifePath} points toward: ${profile.strengths}`,
-    extra: expression
-      ? `Expression Number ${expression}, calculated from the letters of the full birth name, reflects the natural way this number tends to be outwardly expressed.`
-      : 'Add a full birth name to also calculate an Expression Number.',
-    cycleNote: `Personal Year indicator for ${new Date().getFullYear()}: ${year}.`,
+    extraBlocks,
     confidenceNote: 'Numerology figures here are calculated directly from the birth date and name provided — no estimation involved.',
   };
 }

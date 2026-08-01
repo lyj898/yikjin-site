@@ -5,7 +5,6 @@
 
 import { READINGS, ALWAYS_ON_FIELDS, FIELD_DEFS, SYSTEM_LABELS } from './readings-config.js';
 import { buildNumerologyReading } from './engines/numerology.js';
-import { buildIChingReading } from './engines/iching.js';
 import { buildWesternReading } from './engines/western.js';
 import { buildBaziReading } from './engines/bazi.js';
 import { buildVedicReading } from './engines/vedic.js';
@@ -13,7 +12,6 @@ import { buildVedicReading } from './engines/vedic.js';
 const FIELD_ORDER = [
   'fullName', 'displayName', 'dob', 'birthTime', 'timeKnown',
   'birthPlace', 'birthCountry', 'gender',
-  'question', 'ichingMode',
   'focus', 'depth',
 ];
 
@@ -29,6 +27,9 @@ const generateBtn = el('generate-btn');
 const resetBtn = el('reset-btn');
 const formError = el('form-error');
 const resultsSection = el('results');
+const processingPanel = el('processing-panel');
+const processingSteps = el('processing-steps');
+const resultsContent = el('results-content');
 const resultsList = el('results-list');
 const editInputsBtn = el('edit-inputs-btn');
 const resetResultsBtn = el('reset-results-btn');
@@ -38,8 +39,7 @@ const liveRegion = el('live-region');
 
 const state = {
   selected: new Set(),
-  values: { focus: 'general', depth: 'standard', ichingMode: 'cast', timeKnown: false },
-  manualLines: ['yang', 'yang', 'yang', 'yang', 'yang', 'yang'],
+  values: { focus: 'general', depth: 'standard', timeKnown: false },
 };
 
 function selectedReadings() {
@@ -198,7 +198,7 @@ function renderChips(fieldId) {
   return wrap;
 }
 
-function renderSegmented(fieldId, onChange) {
+function renderSegmented(fieldId) {
   const def = FIELD_DEFS[fieldId];
   const value = state.values[fieldId];
   const wrap = document.createElement('div');
@@ -227,57 +227,11 @@ function renderSegmented(fieldId, onChange) {
       btn.classList.add('is-active');
       btn.setAttribute('aria-pressed', 'true');
       updateRequirements();
-      if (onChange) onChange(opt.value);
     });
     group.appendChild(btn);
   });
 
   wrap.appendChild(group);
-  return wrap;
-}
-
-function renderManualLinePicker() {
-  const wrap = document.createElement('div');
-  wrap.className = 'field span-2';
-  wrap.dataset.field = 'manualLines';
-  const label = document.createElement('label');
-  label.textContent = 'Hexagram lines (bottom to top)';
-  wrap.appendChild(label);
-
-  const picker = document.createElement('div');
-  picker.className = 'line-picker';
-
-  state.manualLines.forEach((val, i) => {
-    const row = document.createElement('div');
-    row.className = 'line-row';
-    const lineLabel = document.createElement('span');
-    lineLabel.className = 'line-label';
-    lineLabel.textContent = `Line ${i + 1}${i === 0 ? ' (bottom)' : i === 5 ? ' (top)' : ''}`;
-    row.appendChild(lineLabel);
-
-    const seg = document.createElement('div');
-    seg.className = 'segmented';
-    seg.setAttribute('role', 'group');
-    seg.setAttribute('aria-label', `Line ${i + 1} type`);
-    [['yang', 'Solid (Yang)'], ['yin', 'Broken (Yin)']].forEach(([v, l]) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.textContent = l;
-      btn.className = v === val ? 'is-active' : '';
-      btn.setAttribute('aria-pressed', String(v === val));
-      btn.addEventListener('click', () => {
-        state.manualLines[i] = v;
-        seg.querySelectorAll('button').forEach((b) => { b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false'); });
-        btn.classList.add('is-active');
-        btn.setAttribute('aria-pressed', 'true');
-      });
-      seg.appendChild(btn);
-    });
-    row.appendChild(seg);
-    picker.appendChild(row);
-  });
-
-  wrap.appendChild(picker);
   return wrap;
 }
 
@@ -304,18 +258,12 @@ function renderForm() {
       case 'select': node = renderSelect(fieldId); break;
       case 'toggle': node = renderToggle(fieldId); break;
       case 'chips': node = renderChips(fieldId); break;
-      case 'segmented':
-        node = renderSegmented(fieldId, fieldId === 'ichingMode' ? () => renderForm() : undefined);
-        break;
+      case 'segmented': node = renderSegmented(fieldId); break;
       default: return;
     }
     if (fieldId === 'birthTime' && state.values.timeKnown) node.classList.add('is-suppressed');
     dynamicFields.appendChild(node);
   });
-
-  if (state.selected.has('iching') && state.values.ichingMode === 'manual') {
-    dynamicFields.appendChild(renderManualLinePicker());
-  }
 }
 
 // ----------------------------------------------------------- requirements
@@ -390,15 +338,10 @@ function combinedBirthPlace(v) {
 // checkbox (true = NOT known), so it's inverted here to the timeKnown
 // flag the engines expect (true = known).
 const BUILDERS = {
-  numerology: (v) => buildNumerologyReading({ fullName: v.fullName, dob: v.dob, focus: v.focus }),
-  iching: (v) => buildIChingReading({
-    question: v.question,
-    mode: v.ichingMode,
-    lineTypes: v.ichingMode === 'manual' ? state.manualLines : undefined,
-  }),
-  western: (v) => buildWesternReading({ dob: v.dob, timeKnown: !v.timeKnown, birthTime: v.birthTime, birthPlace: combinedBirthPlace(v), focus: v.focus }),
-  bazi: (v) => buildBaziReading({ dob: v.dob, timeKnown: !v.timeKnown, birthTime: v.birthTime, birthPlace: combinedBirthPlace(v), focus: v.focus }),
-  vedic: (v) => buildVedicReading({ dob: v.dob, timeKnown: !v.timeKnown, birthTime: v.birthTime, birthPlace: combinedBirthPlace(v), focus: v.focus }),
+  numerology: (v) => buildNumerologyReading({ fullName: v.fullName, dob: v.dob, focus: v.focus, depth: v.depth }),
+  western: (v) => buildWesternReading({ dob: v.dob, timeKnown: !v.timeKnown, birthTime: v.birthTime, birthPlace: combinedBirthPlace(v), focus: v.focus, depth: v.depth }),
+  bazi: (v) => buildBaziReading({ dob: v.dob, timeKnown: !v.timeKnown, birthTime: v.birthTime, birthPlace: combinedBirthPlace(v), focus: v.focus, depth: v.depth }),
+  vedic: (v) => buildVedicReading({ dob: v.dob, timeKnown: !v.timeKnown, birthTime: v.birthTime, birthPlace: combinedBirthPlace(v), focus: v.focus, depth: v.depth }),
 };
 
 function escapeHtml(str) {
@@ -407,28 +350,40 @@ function escapeHtml(str) {
   }[ch]));
 }
 
-function renderResultCard(reading, result) {
+// "Quick" shows only the essentials; "standard" (default) adds watch-outs
+// and the focus interpretation; "comprehensive" also renders each engine's
+// extraBlocks — genuinely additional content computed only for this tier
+// (see engines/*.js), not the same text with more padding.
+function renderResultCard(reading, result, depth) {
   const card = document.createElement('article');
   card.className = 'result-card';
 
-  // inputsUsed echoes back raw user text (name, question, birthplace) —
+  // inputsUsed echoes back raw user text (name, birthplace, etc.) —
   // escape it before it goes into innerHTML below.
   const inputsHtml = Object.entries(result.inputsUsed || {})
     .map(([k, v]) => `<span><strong>${escapeHtml(k)}:</strong> ${escapeHtml(v)}</span>`).join('');
 
-  const extraBlocks = [];
-  if (result.hexagramSymbol) {
-    extraBlocks.push(`<div class="result-block"><div class="label">Hexagram</div><div class="hex-symbol">${result.hexagramSymbol}</div></div>`);
+  const blocks = [
+    { label: 'Core snapshot', value: result.snapshot, cls: 'snapshot' },
+  ];
+  if (depth !== 'quick') {
+    blocks.push({ label: 'Strengths / tendencies', value: result.strengths });
+    blocks.push({ label: 'Watch-outs', value: result.watchOuts });
+    blocks.push({ label: 'Focus-area interpretation', value: result.focusInterpretation });
+  } else {
+    blocks.push({ label: 'Strengths / tendencies', value: result.strengths });
   }
-  if (result.guidance) {
-    extraBlocks.push(`<div class="result-block"><div class="label">Guidance</div><div class="value">${result.guidance}</div></div>`);
+  if (depth === 'comprehensive' && result.extraBlocks) {
+    result.extraBlocks.forEach((b) => blocks.push(b));
   }
-  if (result.extra) {
-    extraBlocks.push(`<div class="result-block"><div class="label">Additional detail</div><div class="value">${result.extra}</div></div>`);
-  }
-  if (result.cycleNote) {
-    extraBlocks.push(`<div class="result-block"><div class="label">Cycle note</div><div class="value">${result.cycleNote}</div></div>`);
-  }
+  blocks.push({ label: 'Confidence / precision note', value: result.confidenceNote, cls: 'muted' });
+
+  const blocksHtml = blocks.map((b) => `
+    <div class="result-block">
+      <div class="label">${escapeHtml(b.label)}</div>
+      <div class="value${b.cls ? ` ${b.cls}` : ''}">${b.value}</div>
+    </div>
+  `).join('');
 
   card.innerHTML = `
     <div class="result-card-head">
@@ -438,59 +393,75 @@ function renderResultCard(reading, result) {
       </div>
     </div>
     <div class="result-inputs">${inputsHtml}</div>
-    <div class="result-block">
-      <div class="label">Core snapshot</div>
-      <div class="value snapshot">${result.snapshot}</div>
-    </div>
-    <div class="result-block">
-      <div class="label">Strengths / tendencies</div>
-      <div class="value">${result.strengths}</div>
-    </div>
-    <div class="result-block">
-      <div class="label">Watch-outs</div>
-      <div class="value">${result.watchOuts}</div>
-    </div>
-    <div class="result-block">
-      <div class="label">Focus-area interpretation</div>
-      <div class="value">${result.focusInterpretation}</div>
-    </div>
-    ${extraBlocks.join('')}
-    <div class="result-block">
-      <div class="label">Confidence / precision note</div>
-      <div class="value muted">${result.confidenceNote}</div>
-    </div>
+    ${blocksHtml}
   `;
   return card;
 }
 
-function generateReading() {
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function buildProcessingSteps(readings) {
+  processingSteps.innerHTML = '';
+  readings.forEach((reading) => {
+    const li = document.createElement('li');
+    li.className = 'processing-step';
+    li.dataset.id = reading.id;
+    li.innerHTML = `<span class="dot" aria-hidden="true"></span><span>Reading ${SYSTEM_LABELS[reading.id]}…</span>`;
+    processingSteps.appendChild(li);
+  });
+}
+
+function setStepState(id, cls) {
+  const step = processingSteps.querySelector(`[data-id="${id}"]`);
+  if (step) step.classList.add(cls);
+}
+
+async function generateReading() {
   const missing = validate();
   if (missing.length) {
     formError.textContent = `Please complete: ${missing.join(', ')}.`;
     return;
   }
   formError.textContent = '';
+  generateBtn.disabled = true;
+
+  const readings = selectedReadings();
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  resultsSection.hidden = false;
+  resultsContent.hidden = true;
+  processingPanel.hidden = false;
+  buildProcessingSteps(readings);
+  resultsSection.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
 
   resultsList.innerHTML = '';
-  selectedReadings().forEach((reading) => {
+  for (const reading of readings) {
+    if (!reduceMotion) {
+      setStepState(reading.id, 'is-active');
+      await wait(380 + Math.random() * 260);
+    }
     const result = BUILDERS[reading.id](state.values);
-    resultsList.appendChild(renderResultCard(reading, result));
-  });
+    resultsList.appendChild(renderResultCard(reading, result, state.values.depth));
+    if (!reduceMotion) setStepState(reading.id, 'is-done');
+  }
+  if (!reduceMotion) await wait(250);
 
-  resultsSection.classList.add('has-results');
-  liveRegion.textContent = `Reading generated for ${selectedReadings().length} system${selectedReadings().length === 1 ? '' : 's'}.`;
-  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  processingPanel.hidden = true;
+  resultsContent.hidden = false;
+  liveRegion.textContent = `Reading generated for ${readings.length} system${readings.length === 1 ? '' : 's'}.`;
+  generateBtn.disabled = false;
 }
 
 function resetAll() {
   state.selected.clear();
-  state.values = { focus: 'general', depth: 'standard', ichingMode: 'cast', timeKnown: false };
-  state.manualLines = ['yang', 'yang', 'yang', 'yang', 'yang', 'yang'];
+  state.values = { focus: 'general', depth: 'standard', timeKnown: false };
   renderCards();
   renderForm();
   updateRequirements();
   updateGenerateState();
-  resultsSection.classList.remove('has-results');
+  resultsSection.hidden = true;
+  resultsContent.hidden = true;
+  processingPanel.hidden = true;
   resultsList.innerHTML = '';
   formError.textContent = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });

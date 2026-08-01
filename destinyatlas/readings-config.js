@@ -1,4 +1,4 @@
-// readings-config.js — shared metadata describing the five reading
+// readings-config.js — shared metadata describing the four reading
 // systems and the form fields they need. This is UI-facing config
 // (drives the card grid and the dynamic form), kept separate from the
 // engines/ modules, which stay pure calculation with no knowledge of
@@ -41,15 +41,6 @@ export const READINGS = [
     requiredPreview: 'Full name, birth date',
     fields: ['fullName', 'dob'],
   },
-  {
-    id: 'iching',
-    name: 'I Ching',
-    culturalLabel: 'Oracle',
-    description: 'A classical Chinese oracle that answers a specific question through a hexagram made from six yin and yang lines.',
-    bestFor: 'Decisions, uncertainty, and understanding the nature of a current situation.',
-    requiredPreview: 'Question / topic',
-    fields: ['question', 'ichingMode'],
-  },
 ];
 
 // Fields shown regardless of which readings are selected, whenever at
@@ -71,15 +62,6 @@ export const FIELD_DEFS = {
       { value: '', label: 'Not specified' },
       { value: 'female', label: 'Female' },
       { value: 'male', label: 'Male' },
-    ],
-  },
-  question: { label: 'Question or topic', type: 'textarea', required: true },
-  ichingMode: {
-    label: 'Casting mode',
-    type: 'segmented',
-    options: [
-      { value: 'cast', label: 'System-generated cast' },
-      { value: 'manual', label: 'Manual hexagram input' },
     ],
   },
   focus: {
@@ -111,5 +93,4 @@ export const SYSTEM_LABELS = {
   western: 'Western Astrology',
   vedic: 'Vedic Astrology',
   numerology: 'Numerology',
-  iching: 'I Ching',
 };
