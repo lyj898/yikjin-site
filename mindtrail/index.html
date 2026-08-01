@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>MindTrail — YikJin</title>
+<meta name="description" content="MindTrail — a short daily memory walk. Study a route, then retrace it from memory.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="../favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Cormorant+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #171613;
+    --ink-soft: #57544c;
+    --paper: #ffffff;
+    --hairline: #E9E7E0;
+    --gold: #9C8355;
+    --surface: #FBFAF9;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html, body{ height:100%; }
+
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  a{ color:inherit; }
+
+  /* ---------- header / footer (matches site pattern) ---------- */
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 2rem clamp(1.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .logo{
+    font-family: 'Parisienne', cursive;
+    font-size: 1.9rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  header nav{ display:flex; align-items:center; gap: clamp(1.25rem, 3vw, 2rem); }
+
+  header nav a{
+    color: var(--ink-soft);
+    text-decoration:none;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  header nav a:hover{ color: var(--ink); border-bottom-color: var(--ink); }
+
+  a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible{
+    outline: 1px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  footer{ display:flex; justify-content:center; padding: 3rem 2rem 2.5rem; }
+  footer p{ font-size: 0.68rem; letter-spacing: 0.1em; color: #a8a49a; text-transform: uppercase; }
+
+  /* ---------- page shell ---------- */
+
+  main{
+    flex:1;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 6vw, 4rem) 2rem;
+  }
+
+  section{ margin-bottom: clamp(2.75rem, 6vw, 3.75rem); }
+
+  .hero{ text-align:center; margin: 0 auto clamp(2.5rem, 6vw, 3.5rem); }
+
+  .eyebrow{
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+  }
+
+  .hero h1{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2.25rem, 6vw, 3rem);
+    margin-bottom: 1.1rem;
+  }
+
+  .hero .sub{ font-size: 0.95rem; line-height:1.65; color: var(--ink-soft); max-width: 480px; margin: 0 auto 1.5rem; }
+
+  .why-brief{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap: 0.6rem 1.6rem;
+    margin: 0 auto 2rem;
+    max-width: 520px;
+  }
+  .why-brief li{
+    list-style:none;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap: 0.45rem;
+  }
+  .why-brief li::before{ content:''; width:4px; height:4px; border-radius:50%; background: var(--gold); flex-shrink:0; }
+
+  .btn-primary{
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    padding: 0.85rem 2.25rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor:pointer;
+    min-height: 44px;
+    transition: opacity 0.2s ease;
+  }
+  .btn-primary:hover{ opacity:0.85; }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .btn-secondary{
+    background:none;
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    cursor:pointer;
+    min-height: 44px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .btn-secondary:hover{ border-color: var(--gold); color: var(--gold); }
+
+  /* ---------- progress strip ---------- */
+
+  .progress-strip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap: 0.75rem 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: var(--surface);
+    margin-bottom: 1.75rem;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .progress-stats{ display:flex; gap: 1.25rem; flex-wrap:wrap; }
+  .progress-stats strong{ color: var(--ink); font-weight:500; }
+
+  .stamp-row{ display:flex; gap: 0.4rem; }
+  .stamp{
+    width: 9px; height:9px;
+    border-radius:50%;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+  .stamp.is-played{ background: var(--gold); border-color: var(--gold); }
+  .stamp.is-today{ box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--hairline); }
+
+  /* ---------- game card ---------- */
+
+  .game-card{
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    background: var(--paper);
+  }
+
+  .game-idle{ text-align:center; padding: 1rem 0; }
+  .game-idle p{ font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 1.5rem; }
+
+  .phase-label{
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align:center;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ---------- trail ---------- */
+
+  .trail{ list-style:none; display:flex; flex-direction:column; margin-bottom: 1.75rem; }
+
+  .trail-stop{ display:flex; gap: 1rem; position:relative; padding-bottom: 1.35rem; }
+  .trail-stop::before{
+    content:'';
+    position:absolute;
+    left:15px; top:32px; bottom:0;
+    width:1px;
+    background: var(--hairline);
+  }
+  .trail-stop:last-child{ padding-bottom:0; }
+  .trail-stop:last-child::before{ display:none; }
+
+  .trail-marker{
+    width:32px; height:32px;
+    border-radius:50%;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    flex-shrink:0;
+    z-index:1;
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  }
+  .trail-stop.is-active .trail-marker{
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--paper);
+    animation: trail-pulse 1.6s ease-in-out infinite;
+  }
+  .trail-stop.is-correct .trail-marker{ background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .trail-stop.is-incorrect .trail-marker{ background: var(--ink-soft); border-color: var(--ink-soft); color: var(--paper); }
+  @keyframes trail-pulse{
+    0%, 100%{ box-shadow: 0 0 0 0 rgba(156,131,85,0.35); }
+    50%{ box-shadow: 0 0 0 5px rgba(156,131,85,0); }
+  }
+
+  .trail-content{ flex:1; padding-top: 0.3rem; min-width:0; }
+  .trail-place{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .trail-object-slot{
+    font-size: 0.78rem;
+    color: var(--gold);
+    min-height: 1.2em;
+    margin-top: 0.15rem;
+    transition: opacity 0.25s ease;
+  }
+  .trail-object-slot.is-muted{ color: var(--ink-soft); }
+  .trail-object-slot:empty::before{ content: '\2014'; color: var(--hairline); }
+
+  /* ---------- recall panel ---------- */
+
+  .recall-panel{
+    border-top: 1px solid var(--hairline);
+    padding-top: 1.5rem;
+    text-align:center;
+  }
+  .recall-prompt{ font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 1.1rem; }
+  .recall-prompt strong{ color: var(--ink); font-weight:500; font-style:italic; font-family:'Cormorant Garamond', serif; font-size:1.05rem; }
+
+  .choice-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap: 0.6rem;
+  }
+
+  .chip{
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.82rem;
+    cursor:pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+  }
+  .chip:hover:not(:disabled){ border-color: var(--gold); }
+  .chip:disabled{ cursor:default; }
+  .chip.is-correct{ background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .chip.is-incorrect{ border-color: var(--ink-soft); color: var(--ink-soft); text-decoration: line-through; }
+  .chip.is-reveal{ border-color: var(--gold); color: var(--gold); }
+
+  .feedback-line{
+    margin-top: 1.1rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    min-height: 1.3em;
+  }
+
+  .study-continue{ text-align:center; margin-top: 0.5rem; }
+  .study-hint{ font-size: 0.72rem; color: #a8a49a; margin-top: 0.6rem; }
+
+  /* ---------- complete summary ---------- */
+
+  .complete-summary{ text-align:center; }
+  .complete-score{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    margin-bottom: 0.6rem;
+  }
+  .complete-note{ font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 1.75rem; line-height:1.6; }
+  .complete-actions{ display:flex; gap: 1rem; justify-content:center; flex-wrap:wrap; }
+
+  /* ---------- science section ---------- */
+
+  .science-section{
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    overflow:hidden;
+  }
+  .science-section summary{
+    cursor:pointer;
+    padding: 1.1rem 1.4rem;
+    background: var(--surface);
+    list-style:none;
+  }
+  .science-section summary::-webkit-details-marker{ display:none; }
+  .science-section summary h2{
+    display:inline;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .science-section summary::before{ content:'\25B8 '; color: var(--gold); font-family: 'Inter', sans-serif; font-style:normal; }
+  .science-section[open] summary::before{ content:'\25BE '; }
+
+  .science-body{ padding: 0.5rem 1.4rem 1.5rem; }
+  .science-principle{ margin-bottom: 1.1rem; }
+  .science-principle:last-of-type{ margin-bottom: 1.4rem; }
+  .science-principle h3{ font-size: 0.82rem; font-weight:600; margin-bottom: 0.3rem; }
+  .science-principle p{ font-size: 0.82rem; color: var(--ink-soft); line-height:1.65; }
+  .science-disclaimer{
+    font-size: 0.76rem;
+    color: #8a877e;
+    font-style: italic;
+    line-height:1.6;
+    padding-top: 1rem;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip: rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .trail-stop.is-active .trail-marker{ animation:none; }
+    *{ transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="../index.html">YikJin</a>
+    <nav aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../projects.html">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Daily memory practice</p>
+      <h1>MindTrail</h1>
+      <p class="sub">A short daily walk for your memory. Study a route, then retrace it — recalling what belonged where.</p>
+      <ul class="why-brief">
+        <li>Five minutes, once a day</li>
+        <li>No accounts, no dashboards</li>
+        <li>Grounded in real recall technique</li>
+      </ul>
+      <button type="button" class="btn-primary" id="start-btn">Begin today's trail</button>
+    </section>
+
+    <section aria-label="Game">
+      <h2 class="sr-only">Today's trail</h2>
+      <div class="progress-strip">
+        <div class="progress-stats">
+          <span><strong id="stat-streak">0</strong> day streak</span>
+          <span><strong id="stat-total">0</strong> trails walked</span>
+        </div>
+        <div class="stamp-row" id="stamp-row" role="img" aria-label="Last seven days of practice"></div>
+      </div>
+
+      <div class="game-card">
+        <p class="phase-label" id="phase-label" hidden></p>
+
+        <div class="game-idle" id="game-idle">
+          <p>Each trail is a short route with a few stops. Learn what's at each one, then walk it again from memory.</p>
+        </div>
+
+        <ol class="trail" id="trail" hidden></ol>
+
+        <div class="study-continue" id="study-continue" hidden>
+          <button type="button" class="btn-secondary" id="continue-btn">Continue</button>
+          <p class="study-hint">Or tap the highlighted stop, or press Enter</p>
+        </div>
+
+        <div class="recall-panel" id="recall-panel" hidden>
+          <p class="recall-prompt" id="recall-prompt"></p>
+          <div class="choice-grid" id="choice-grid" role="group" aria-label="Answer choices"></div>
+          <p class="feedback-line" id="feedback-line" aria-hidden="true"></p>
+        </div>
+
+        <div class="complete-summary" id="complete-summary" hidden>
+          <p class="complete-score" id="complete-score"></p>
+          <p class="complete-note" id="complete-note"></p>
+          <div class="complete-actions">
+            <button type="button" class="btn-primary" id="replay-btn">Walk another trail</button>
+            <button type="button" class="btn-secondary" id="done-btn">Done for now</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="live-region" class="sr-only" aria-live="polite"></div>
+    </section>
+
+    <details class="science-section">
+      <summary><h2>Why this works</h2></summary>
+      <div class="science-body">
+        <div class="science-principle">
+          <h3>Method of loci</h3>
+          <p>Placing information at points along an imagined route is one of the oldest documented memory techniques, still used by memory competitors today. A path gives memory something concrete to hold onto, rather than a list floating with no structure.</p>
+        </div>
+        <div class="science-principle">
+          <h3>Retrieval practice</h3>
+          <p>Actively trying to recall something strengthens memory more reliably than reviewing it again. Each trail asks you to retrieve the object at each stop, not just recognize it from a list.</p>
+        </div>
+        <div class="science-principle">
+          <h3>Spaced repetition</h3>
+          <p>Bringing an earlier stop back after a short delay, rather than right away, is a well-studied way to make a memory more durable. A couple of earlier stops quietly return later in each trail.</p>
+        </div>
+        <div class="science-principle">
+          <h3>Adaptive challenge</h3>
+          <p>The trail grows a little longer after a strong walk, and eases back after a difficult one. The adjustment is simple and consistent — better performance means more stops next time.</p>
+        </div>
+        <p class="science-disclaimer">MindTrail is a short daily recall exercise, not a medical or diagnostic tool. It doesn't claim to raise IQ, prevent memory-related conditions, or deliver clinical benefit — it's simply a well-established technique, practiced in a small, elegant way.</p>
+      </div>
+    </details>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Yik Jin</p>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
