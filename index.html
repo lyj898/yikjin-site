@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YikJin</title>
+<meta name="description" content="Yik Jin — personal homepage and collection of web projects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Cormorant+Garamond:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #171613;
+    --ink-soft: #57544c;
+    --paper: #ffffff;
+    --hairline: #E9E7E0;
+    --gold: #9C8355;
+    --letter: #FBFAF6;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html, body{ height:100%; }
+
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    position:relative;
+  }
+
+  main{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: clamp(2rem, 6vw, 3.25rem);
+    padding: 2rem;
+  }
+
+  .signature{
+    font-family: 'Parisienne', cursive;
+    font-weight: 400;
+    font-size: clamp(4rem, 12vw, 7rem);
+    line-height: 1;
+    color: var(--ink);
+    opacity: 0;
+    animation: fadeIn 1.1s ease-out 0.15s forwards;
+  }
+
+  @keyframes fadeIn{
+    from{ opacity:0; transform: translateY(6px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  nav{
+    display:flex;
+    align-items:center;
+    gap: clamp(1.5rem, 4vw, 2.25rem);
+    opacity: 0;
+    animation: fadeIn 0.9s ease-out 0.6s forwards;
+  }
+
+  nav a, nav button{
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-soft);
+    text-decoration:none;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    padding-bottom: 5px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  nav a:hover, nav button:hover{
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
+  nav a:focus-visible, nav button:focus-visible{
+    outline: 1px solid var(--gold);
+    outline-offset: 4px;
+  }
+
+  footer{
+    position: fixed;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    display:flex;
+    justify-content:center;
+    opacity: 0;
+    animation: fadeIn 0.9s ease-out 0.9s forwards;
+  }
+
+  footer p{
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: #a8a49a;
+    text-transform: uppercase;
+  }
+
+  #projects{
+    min-height: 60vh;
+    width: 100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap: 0.75rem;
+    padding: 4rem 2rem;
+    border-top: 1px solid var(--hairline);
+  }
+
+  #projects h2{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    color: var(--ink);
+  }
+
+  #projects p{
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  .overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(23, 22, 19, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+
+  .overlay.open{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .stage{
+    width: min(360px, 88vw);
+    perspective: 1200px;
+  }
+
+  .envelope{
+    position: relative;
+    width: 100%;
+    height: 220px;
+    transition: opacity 0.4s ease;
+  }
+
+  .envelope-back{
+    position: absolute;
+    inset: 0;
+    background: #F4F1EA;
+    border: 1px solid #E2DCC9;
+    border-radius: 3px;
+  }
+
+  .envelope-flap{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: calc(min(360px, 88vw) / 2) solid transparent;
+    border-right: calc(min(360px, 88vw) / 2) solid transparent;
+    border-top: 110px solid #EAE4D3;
+    transform-origin: top center;
+    transform: rotateX(0deg);
+    transition: transform 0.7s cubic-bezier(0.65,0,0.35,1);
+    backface-visibility: hidden;
+  }
+
+  .envelope.opening .envelope-flap{
+    transform: rotateX(180deg);
+  }
+
+  .envelope-seal{
+    position: absolute;
+    top: 82px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #7A2E2E;
+    color: #F4E9E4;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+  }
+
+  .envelope.opening .envelope-seal{
+    opacity: 0;
+  }
+
+  .letter{
+    position: absolute;
+    inset: 0;
+    background: var(--letter);
+    border-radius: 3px;
+    box-shadow: 0 12px 32px rgba(23,22,19,0.14);
+    padding: 1.75rem 1.5rem 1.5rem;
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+    transition: opacity 0.5s ease 0.35s, transform 0.5s ease 0.35s;
+    pointer-events: none;
+  }
+
+  .envelope.opening .letter{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .letter h3{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.4rem;
+    margin-bottom: 1.1rem;
+    color: var(--ink);
+  }
+
+  .field{
+    margin-bottom: 0.9rem;
+  }
+
+  .field label{
+    display:block;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.3rem;
+  }
+
+  .field input, .field textarea{
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--hairline);
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    padding: 0.3rem 0.1rem;
+    resize: none;
+  }
+
+  .field input:focus, .field textarea:focus{
+    outline: none;
+    border-bottom-color: var(--gold);
+  }
+
+  .field textarea{
+    min-height: 64px;
+    line-height: 1.6;
+  }
+
+  .letter-actions{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.1rem;
+  }
+
+  .letter-close{
+    background: none;
+    border: none;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .letter-send{
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #7A2E2E;
+    color: #F4E9E4;
+    border: none;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .letter-send:hover{ transform: scale(1.06); }
+  .letter-send:active{ transform: scale(0.96); }
+  .letter-send:disabled{ opacity: 0.6; cursor: default; transform: none; }
+
+  .letter-status{
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin-top: 0.75rem;
+    min-height: 1em;
+  }
+
+  .letter.sent .field, .letter.sent .letter-actions{
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .sent-mark{
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 0.6rem;
+  }
+
+  .letter.sent .sent-mark{ display: flex; }
+
+  .sent-mark span:first-child{
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid #7A2E2E;
+    color: #7A2E2E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .sent-mark p{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .signature, nav, footer{ animation: none !important; opacity: 1 !important; }
+    .envelope-flap, .letter, .envelope-seal{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <main>
+    <h1 class="signature">YikJin</h1>
+    <nav aria-label="Primary">
+      <a href="#projects">Projects</a>
+      <button type="button" id="open-contact">Contact</button>
+    </nav>
+  </main>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <p>A collection of web work — coming soon.</p>
+  </section>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Yik Jin</p>
+  </footer>
+
+  <div class="overlay" id="overlay">
+    <div class="stage">
+      <div class="envelope" id="envelope">
+        <div class="envelope-back"></div>
+        <div class="envelope-flap"></div>
+        <div class="envelope-seal">Y</div>
+
+        <form class="letter" id="letter-form" novalidate>
+          <h3>Write to YikJin</h3>
+
+          <div class="field">
+            <label for="f-name">Your name</label>
+            <input type="text" id="f-name" name="name" required autocomplete="name">
+          </div>
+
+          <div class="field">
+            <label for="f-email">Your email</label>
+            <input type="email" id="f-email" name="email" required autocomplete="email">
+          </div>
+
+          <div class="field">
+            <label for="f-message">Message</label>
+            <textarea id="f-message" name="message" required></textarea>
+          </div>
+
+          <div class="letter-actions">
+            <button type="button" class="letter-close" id="close-contact">Close</button>
+            <button type="submit" class="letter-send" id="send-btn">Mail</button>
+          </div>
+
+          <p class="letter-status" id="letter-status" role="status"></p>
+
+          <div class="sent-mark">
+            <span>&#10003;</span>
+            <p>Delivered</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const overlay = document.getElementById('overlay');
+    const envelope = document.getElementById('envelope');
+    const openBtn = document.getElementById('open-contact');
+    const closeBtn = document.getElementById('close-contact');
+    const form = document.getElementById('letter-form');
+    const sendBtn = document.getElementById('send-btn');
+    const status = document.getElementById('letter-status');
+
+    function openOverlay(){
+      overlay.classList.add('open');
+      envelope.classList.remove('opening');
+      form.classList.remove('sent');
+      status.textContent = '';
+      form.reset();
+      sendBtn.disabled = false;
+      setTimeout(() => envelope.classList.add('opening'), 250);
+    }
+
+    function closeOverlay(){
+      overlay.classList.remove('open');
+    }
+
+    openBtn.addEventListener('click', openOverlay);
+    closeBtn.addEventListener('click', closeOverlay);
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeOverlay();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeOverlay();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      sendBtn.disabled = true;
+      status.textContent = 'Sending…';
+
+      const data = {
+        name: document.getElementById('f-name').value,
+        email: document.getElementById('f-email').value,
+        message: document.getElementById('f-message').value,
+        _subject: 'New message from YikJin.com',
+        _template: 'table'
+      };
+
+      try {
+        const res = await fetch('https://formsubmit.co/ajax/lyj898@gmail.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) throw new Error('Request failed');
+
+        status.textContent = '';
+        form.classList.add('sent');
+      } catch (err) {
+        status.textContent = "Couldn't send. Try again, or email directly.";
+        sendBtn.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
