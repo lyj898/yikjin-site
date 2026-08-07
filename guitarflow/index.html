@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>GuitarFlow — YikJin</title>
+<meta name="description" content="GuitarFlow — build chord progressions, choose a strumming pattern, and hear them played with a synthesized guitar engine.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="../favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Cormorant+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #171613;
+    --ink-soft: #57544c;
+    --paper: #ffffff;
+    --hairline: #E9E7E0;
+    --gold: #9C8355;
+    --surface: #FBFAF9;
+    --rose: #C75B5B;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html, body{ height:100%; }
+
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  a{ color:inherit; }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 2rem clamp(1.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .logo{
+    font-family: 'Parisienne', cursive;
+    font-size: 1.9rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  header nav{ display:flex; align-items:center; gap: clamp(1.25rem, 3vw, 2rem); }
+
+  header nav a{
+    color: var(--ink-soft);
+    text-decoration:none;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  header nav a:hover{ color: var(--ink); border-bottom-color: var(--ink); }
+
+  a:focus-visible, button:focus-visible, select:focus-visible{
+    outline: 1px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  footer{ display:flex; justify-content:center; padding: 3rem 2rem 2.5rem; }
+  footer p{ font-size: 0.68rem; letter-spacing: 0.1em; color: #a8a49a; text-transform: uppercase; }
+
+  main{
+    flex:1;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 6vw, 4rem) 2rem;
+  }
+
+  /* ---------- hero ---------- */
+
+  .hero{ text-align:center; margin-bottom: clamp(2.5rem, 6vw, 3.5rem); }
+
+  .eyebrow{
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+  }
+
+  .hero h1{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2.25rem, 6vw, 3rem);
+    margin-bottom: 1.1rem;
+  }
+
+  .hero .sub{ font-size: 0.95rem; line-height:1.65; color: var(--ink-soft); max-width: 480px; margin: 0 auto; }
+
+  /* ---------- builder card ---------- */
+
+  .builder{
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  /* ---------- chord palette ---------- */
+
+  .palette{
+    padding: 1.5rem 1.75rem 1.25rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .palette-tabs{
+    display:flex;
+    gap: 0.35rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .palette-tab{
+    background: none;
+    border: 1px solid var(--hairline);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .palette-tab.is-active{ background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .palette-tab:not(.is-active):hover{ border-color: var(--gold); color: var(--ink); }
+
+  .chord-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 480px){
+    .chord-grid{ grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .chord-btn{
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 0.7rem 0.4rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .chord-btn:hover{ border-color: var(--gold); background: var(--paper); }
+  .chord-btn:active{ transform: scale(0.96); }
+
+  .chord-btn.is-in-progression{
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  /* ---------- progression bar ---------- */
+
+  .progression-area{
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid var(--hairline);
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .progression-label{
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .progression-slots{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    min-height: 52px;
+    align-items: center;
+  }
+
+  .progression-empty{
+    font-size: 0.82rem;
+    color: #a8a49a;
+    font-style: italic;
+  }
+
+  .prog-chip{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 6px;
+    padding: 0.55rem 0.7rem 0.55rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    animation: chipIn 0.2s ease-out;
+  }
+
+  @keyframes chipIn{
+    from{ opacity:0; transform: scale(0.9); }
+    to{ opacity:1; transform: scale(1); }
+  }
+
+  .prog-chip-remove{
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.15rem;
+    transition: color 0.15s ease;
+  }
+
+  .prog-chip-remove:hover{ color: var(--paper); }
+
+  .prog-clear{
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.25rem 0;
+    transition: color 0.2s ease;
+    align-self: flex-start;
+  }
+
+  .prog-clear:hover{ color: var(--rose); }
+
+  /* ---------- preset row ---------- */
+
+  .preset-row{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .preset-label{
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .preset-btn{
+    background: none;
+    border: 1px solid var(--hairline);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .preset-btn:hover{ border-color: var(--gold); color: var(--ink); }
+
+  /* ---------- string visual ---------- */
+
+  .string-visual{
+    padding: 0 1.75rem;
+  }
+
+  .string-canvas{
+    display: block;
+    width: 100%;
+    height: 90px;
+    border-radius: 0;
+  }
+
+  /* ---------- controls ---------- */
+
+  .controls{
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.25rem 1.75rem;
+  }
+
+  .control-group{
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .control-group label{
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .control-group select{
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.84rem;
+    padding: 0.5rem 2rem 0.5rem 0.65rem;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2357544c'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+  }
+
+  .control-group select:focus{ outline: none; border-color: var(--gold); }
+
+  .tempo-wrap{
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .tempo-wrap input[type="range"]{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 110px;
+    height: 2px;
+    background: var(--hairline);
+    border-radius: 999px;
+    outline: none;
+  }
+
+  .tempo-wrap input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+
+  .tempo-wrap input[type="range"]::-moz-range-thumb{
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+
+  .tempo-value{
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    min-width: 2.8em;
+    color: var(--ink);
+  }
+
+  .btn-primary{
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    padding: 0.72rem 2rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    min-height: 44px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+  }
+
+  .btn-primary:hover{ opacity: 0.88; }
+  .btn-primary:active{ transform: scale(0.97); }
+  .btn-primary:disabled{ opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn-primary.is-playing{ background: var(--rose); border-color: var(--rose); }
+
+  /* ---------- now-playing ---------- */
+
+  .now-playing{
+    text-align: center;
+    padding: 0.75rem 1.75rem 1.5rem;
+    font-size: 0.82rem;
+    color: var(--gold);
+    min-height: 2.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .now-playing .chord-name{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .pulse-dot{
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--rose);
+    animation: pulse-dot 0.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot{
+    0%, 100%{ opacity: 1; transform: scale(1); }
+    50%{ opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* ---------- prose section ---------- */
+
+  .prose-section{ max-width: 600px; margin: 3.5rem auto 0; }
+  .prose-section h2{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.6rem;
+    margin-bottom: 1.25rem;
+  }
+  .prose-section p{ font-size: 0.9rem; line-height:1.75; color: var(--ink-soft); margin-bottom: 1.1rem; }
+  .prose-section p:last-child{ margin-bottom:0; }
+  .prose-section strong{ color: var(--ink); font-weight: 500; }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip: rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .chord-btn:active{ transform: none; }
+    .btn-primary:active{ transform: none; }
+    .pulse-dot{ animation: none; opacity: 1; }
+    .prog-chip{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="../index.html">YikJin</a>
+    <nav aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../projects.html">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Interactive music tool</p>
+      <h1>GuitarFlow</h1>
+      <p class="sub">Build a chord progression, pick a strumming pattern, and hear it played through a synthesized guitar engine — all in the browser.</p>
+    </section>
+
+    <div class="builder">
+      <!-- chord palette -->
+      <div class="palette">
+        <div class="palette-tabs" role="tablist" aria-label="Chord types">
+          <button type="button" class="palette-tab is-active" role="tab" aria-selected="true" data-tab="major">Major</button>
+          <button type="button" class="palette-tab" role="tab" aria-selected="false" data-tab="minor">Minor</button>
+          <button type="button" class="palette-tab" role="tab" aria-selected="false" data-tab="seventh">7th</button>
+        </div>
+        <div class="chord-grid" id="chord-grid" role="group" aria-label="Chord buttons"></div>
+      </div>
+
+      <!-- progression -->
+      <div class="progression-area">
+        <span class="progression-label">Your progression</span>
+        <div class="progression-slots" id="prog-slots">
+          <span class="progression-empty" id="prog-empty">Tap chord buttons above to build a sequence</span>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+          <div class="preset-row">
+            <span class="preset-label">Try:</span>
+            <button type="button" class="preset-btn" data-preset="C,Am,F,G">I–vi–IV–V</button>
+            <button type="button" class="preset-btn" data-preset="Am,F,C,G">vi–IV–I–V</button>
+            <button type="button" class="preset-btn" data-preset="C,G,Am,F">I–V–vi–IV</button>
+            <button type="button" class="preset-btn" data-preset="Dm,G7,C">ii–V–I</button>
+          </div>
+          <button type="button" class="prog-clear" id="prog-clear" hidden>Clear all</button>
+        </div>
+      </div>
+
+      <!-- string visual -->
+      <div class="string-visual">
+        <canvas class="string-canvas" id="string-canvas" aria-hidden="true"></canvas>
+      </div>
+
+      <!-- now playing indicator -->
+      <div class="now-playing" id="now-playing"></div>
+
+      <!-- controls -->
+      <div class="controls">
+        <div class="control-group">
+          <label for="strum-select">Strum pattern</label>
+          <select id="strum-select">
+            <option value="down">Down</option>
+            <option value="up">Up</option>
+            <option value="down-up">Down–Up</option>
+            <option value="fingerpick">Fingerpick</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="tempo-range">Tempo</label>
+          <div class="tempo-wrap">
+            <input type="range" id="tempo-range" min="60" max="160" value="100" step="1" aria-label="Tempo in beats per minute">
+            <span class="tempo-value" id="tempo-value">100</span>
+            <span style="font-size:0.7rem;color:var(--ink-soft);">BPM</span>
+          </div>
+        </div>
+        <button type="button" class="btn-primary" id="play-btn" disabled>Play</button>
+      </div>
+    </div>
+
+    <section class="prose-section">
+      <h2>How this was built</h2>
+      <p><strong>The engine.</strong> Each chord is defined as a set of MIDI note numbers — real guitar voicings across four strings. At playback time the audio engine converts those notes to frequencies, then schedules Web Audio API oscillator voices with a fast-attack, exponential-decay envelope through a low-pass filter. A short noise burst feeds a resonant bandpass filter tuned to each note's fundamental, adding the percussive "pluck" that gives a plucked-string character.</p>
+      <p><strong>The strummer.</strong> Strum patterns are expressed as direction + timing maps. A down strum fires the chord's notes from lowest to highest, staggered by 18–30&nbsp;ms depending on tempo. An up strum reverses the order. The fingerpick pattern follows a fixed arpeggio shape — bass, treble, middle, treble — spread across roughly 400&nbsp;ms. Everything is scheduled against the AudioContext clock for sample-accurate timing.</p>
+      <p><strong>The trade-off.</strong> Real guitar tone involves body resonance, string coupling, harmonic overtones that shift during decay, and the nonlinear response of a driven soundboard. This engine approximates the attack and harmonic structure with synthesis, but doesn't model any of those physical interactions. The result is a recognizable and playable guitar-like voice that works instantly in any browser — no samples to load, no libraries to ship.</p>
+      <p><strong>What I'd improve.</strong> The 4-string voicings could become 6-string with proper muted-string modelling for open-position chords. Adding a convolution reverb with a small-room impulse response would make a surprisingly large difference in warmth. And a loop mode — where the progression cycles and the user can swap chords while it plays — would turn this from a player into a proper sketchpad.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Yik Jin</p>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+
+  <script>
+  /* ==================================================================
+     GuitarFlow — chord progression builder with synthesized guitar audio
+     ================================================================== */
+
+  // ------------------------------------------------------------------ chord data
+  // Compact 4-note voicings as MIDI note numbers (low → high).
+
+  const CHORD_SETS = {
+    major: {
+      C:  { label:'C',  notes:[48,52,55,60] },
+      D:  { label:'D',  notes:[50,54,57,62] },
+      E:  { label:'E',  notes:[52,56,59,64] },
+      F:  { label:'F',  notes:[53,57,60,65] },
+      G:  { label:'G',  notes:[43,47,50,55] },
+      A:  { label:'A',  notes:[45,49,52,57] },
+      B:  { label:'B',  notes:[47,51,54,59] }
+    },
+    minor: {
+      Cm: { label:'Cm', notes:[48,51,55,60] },
+      Dm: { label:'Dm', notes:[50,53,57,62] },
+      Em: { label:'Em', notes:[52,55,59,64] },
+      Fm: { label:'Fm', notes:[53,56,60,65] },
+      Gm: { label:'Gm', notes:[43,46,50,55] },
+      Am: { label:'Am', notes:[45,48,52,57] },
+      Bm: { label:'Bm', notes:[47,50,54,59] }
+    },
+    seventh: {
+      C7: { label:'C7', notes:[48,52,55,58] },
+      D7: { label:'D7', notes:[50,54,57,60] },
+      E7: { label:'E7', notes:[52,56,59,62] },
+      F7: { label:'F7', notes:[53,57,60,63] },
+      G7: { label:'G7', notes:[43,47,50,53] },
+      A7: { label:'A7', notes:[45,49,52,55] },
+      B7: { label:'B7', notes:[47,51,54,57] }
+    }
+  };
+
+  function midiToFreq(midi) {
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  }
+
+  // ------------------------------------------------------------------ audio engine
+
+  const AudioEngine = (() => {
+    let ctx = null;
+    let masterGain = null;
+    let reverbNode = null;
+    let activeSources = [];
+
+    function ensureContext() {
+      if (!ctx) {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = ctx.createGain();
+        masterGain.gain.value = 0.55;
+
+        // simple reverb: delay line with feedback
+        const delay = ctx.createDelay(0.85);
+        delay.delayTime.value = 0.85;
+        const feedback = ctx.createGain();
+        feedback.gain.value = 0.28;
+        const dry = ctx.createGain();
+        dry.gain.value = 0.82;
+        const wet = ctx.createGain();
+        wet.gain.value = 0.28;
+
+        masterGain.connect(dry);
+        masterGain.connect(delay);
+        delay.connect(feedback);
+        feedback.connect(delay);
+        delay.connect(wet);
+
+        const merger = ctx.createGain();
+        dry.connect(merger);
+        wet.connect(merger);
+        merger.connect(ctx.destination);
+
+        reverbNode = merger;
+      }
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+
+    function endTime(duration) {
+      return ensureContext().currentTime + duration;
+    }
+
+    /**
+     * Play a single plucked-string note.
+     * @param {number} freq    Frequency in Hz
+     * @param {number} when    AudioContext start time
+     * @param {number} dur     Duration in seconds
+     * @param {number} vel     Velocity 0–1
+     */
+    function playNote(freq, when, dur, vel) {
+      const c = ensureContext();
+
+      // noise burst → bandpass for pluck transient
+      const noiseLen = 0.018;
+      const noiseBuf = c.createBuffer(1, Math.floor(c.sampleRate * noiseLen), c.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (c.sampleRate * 0.004));
+      }
+      const noiseSrc = c.createBufferSource();
+      noiseSrc.buffer = noiseBuf;
+
+      const bp = c.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = Math.min(freq, 6000);
+      bp.Q.value = 9;
+
+      const noiseGain = c.createGain();
+      noiseGain.gain.setValueAtTime(0.35 * vel, when);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, when + 0.04);
+
+      noiseSrc.connect(bp);
+      bp.connect(noiseGain);
+      noiseGain.connect(masterGain);
+      noiseSrc.start(when);
+      noiseSrc.stop(when + noiseLen + 0.01);
+
+      // main sawtooth oscillator
+      const osc = c.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.value = freq;
+
+      // slightly detuned second oscillator for thickness
+      const osc2 = c.createOscillator();
+      osc2.type = 'sawtooth';
+      osc2.frequency.value = freq * 1.003;
+
+      const lp = c.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = Math.min(7500, freq * 4.5);
+      lp.Q.value = 0.9;
+
+      const env = c.createGain();
+      env.gain.setValueAtTime(0, when);
+      env.gain.linearRampToValueAtTime(vel * 0.65, when + 0.004);
+      env.gain.setValueAtTime(vel * 0.55, when + 0.025);
+      env.gain.exponentialRampToValueAtTime(0.001, when + dur);
+
+      osc.connect(lp);
+      osc2.connect(lp);
+      lp.connect(env);
+      env.connect(masterGain);
+
+      osc.start(when);
+      osc.stop(when + dur + 0.05);
+      osc2.start(when);
+      osc2.stop(when + dur + 0.05);
+
+      const cleanupTime = when + dur + 0.1;
+      return { osc, osc2, noiseSrc, cleanupTime };
+    }
+
+    /**
+     * Play a chord with the given strum pattern.
+     * Returns the scheduled end time.
+     */
+    function playChord(notes, when, barDuration, pattern, tempo) {
+      const c = ensureContext();
+      const noteCount = notes.length;
+      const freqs = notes.map(midiToFreq);
+
+      // base strum duration scales with tempo
+      const tempoFactor = 100 / Math.max(60, Math.min(160, tempo));
+      const noteDur = barDuration * 0.75; // each note rings for 75% of bar
+
+      switch (pattern) {
+        case 'down': {
+          const strumTime = 0.07 * tempoFactor;
+          const interval = strumTime / noteCount;
+          for (let i = 0; i < noteCount; i++) {
+            playNote(freqs[i], when + i * interval, noteDur, 0.72);
+          }
+          break;
+        }
+        case 'up': {
+          const strumTime = 0.07 * tempoFactor;
+          const interval = strumTime / noteCount;
+          for (let i = 0; i < noteCount; i++) {
+            playNote(freqs[noteCount - 1 - i], when + i * interval, noteDur, 0.72);
+          }
+          break;
+        }
+        case 'down-up': {
+          const halfTime = 0.05 * tempoFactor;
+          const interval = halfTime / noteCount;
+          // down
+          for (let i = 0; i < noteCount; i++) {
+            playNote(freqs[i], when + i * interval, noteDur * 0.55, 0.62);
+          }
+          // up (starts halfway through the bar)
+          const upStart = when + barDuration * 0.48;
+          for (let i = 0; i < noteCount; i++) {
+            playNote(freqs[noteCount - 1 - i], upStart + i * interval, noteDur * 0.55, 0.58);
+          }
+          break;
+        }
+        case 'fingerpick': {
+          // pattern: bass, treble, middle, treble
+          const pickOrder = [0, 3, 1, 3, 2, 3, 1, 3];
+          const pickTime = barDuration * 0.85;
+          const pickInterval = pickTime / (pickOrder.length - 1);
+          for (let i = 0; i < pickOrder.length; i++) {
+            const idx = pickOrder[i];
+            playNote(freqs[idx], when + i * pickInterval, noteDur * 0.45, 0.55 + (i === pickOrder.length - 1 ? 0.1 : 0));
+          }
+          break;
+        }
+      }
+
+      return when + barDuration;
+    }
+
+    function stopAll() {
+      // hard-stop: create a new AudioContext is the cleanest approach
+      if (ctx) {
+        ctx.close().catch(() => {});
+        ctx = null;
+        masterGain = null;
+        reverbNode = null;
+      }
+    }
+
+    return { playChord, stopAll, ensureContext, endTime };
+  })();
+
+  // ------------------------------------------------------------------ string visualizer
+
+  const StringVisual = (() => {
+    const canvas = document.getElementById('string-canvas');
+    const ctx = canvas.getContext('2d');
+    const STRING_COUNT = 4;
+    const stringStates = Array.from({ length: STRING_COUNT }, () => ({
+      phase: 0,
+      amplitude: 0,
+      frequency: 0,
+      targetAmp: 0
+    }));
+
+    let animId = null;
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = 90 * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = '90px';
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    }
+
+    function pluckStrings(indices) {
+      indices.forEach(i => {
+        if (i < STRING_COUNT) {
+          stringStates[i].targetAmp = 1;
+        }
+      });
+    }
+
+    function draw(timestamp) {
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      const h = canvas.height / (window.devicePixelRatio || 1);
+      ctx.clearRect(0, 0, w, h);
+
+      const marginX = 60;
+      const stringW = w - marginX * 2;
+      const spacing = h / (STRING_COUNT + 0.5);
+      const startY = spacing * 0.75;
+
+      // sound hole
+      const holeCX = w * 0.35;
+      const holeCY = h / 2;
+      const holeR = 22;
+      ctx.beginPath();
+      ctx.arc(holeCX, holeCY, holeR, 0, Math.PI * 2);
+      ctx.fillStyle = '#F5F2ED';
+      ctx.fill();
+      ctx.strokeStyle = '#E9E7E0';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // rosette
+      ctx.beginPath();
+      ctx.arc(holeCX, holeCY, holeR + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = '#E0DBCF';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      for (let i = 0; i < STRING_COUNT; i++) {
+        const y = startY + i * spacing;
+        const st = stringStates[i];
+
+        // decay amplitude
+        st.amplitude += (st.targetAmp - st.amplitude) * 0.18;
+        st.targetAmp *= 0.94;
+        if (st.targetAmp < 0.005) st.targetAmp = 0;
+        if (st.amplitude < 0.003) st.amplitude = 0;
+
+        st.phase += (st.frequency || 220 + i * 50) * 0.025;
+        if (st.amplitude > 0.01) {
+          st.frequency = 220 + i * 50;
+        }
+
+        const amp = st.amplitude * 5.5;
+
+        // draw string
+        ctx.beginPath();
+        ctx.moveTo(marginX, y);
+        const segments = 40;
+        for (let s = 0; s <= segments; s++) {
+          const sx = marginX + (stringW * s) / segments;
+          const wave = Math.sin(st.phase + (s / segments) * Math.PI * 3) * amp * (s / segments) * (1 - s / segments) * 4;
+          ctx.lineTo(sx, y + wave);
+        }
+
+        const thickness = 0.8 + i * 0.25;
+        ctx.strokeStyle = st.amplitude > 0.1
+          ? `rgba(156,131,85,${0.5 + st.amplitude * 0.5})`
+          : '#D4CFC5';
+        ctx.lineWidth = thickness;
+        ctx.stroke();
+      }
+
+      animId = requestAnimationFrame(draw);
+    }
+
+    function start() {
+      resize();
+      if (!animId) animId = requestAnimationFrame(draw);
+    }
+
+    function stop() {
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
+      for (let i = 0; i < STRING_COUNT; i++) {
+        stringStates[i].targetAmp = 0;
+        stringStates[i].amplitude = 0;
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      if (animId) resize();
+    });
+
+    return { start, stop, pluckStrings, resize };
+  })();
+
+  // ------------------------------------------------------------------ sequencer
+
+  const Sequencer = (() => {
+    let scheduledUntil = 0;
+    let timerId = null;
+    let isPlaying = false;
+    let currentChordIndex = -1;
+
+    function scheduleChunk(progression, pattern, tempo) {
+      const now = AudioEngine.ensureContext().currentTime;
+      const lookAhead = 0.2;
+      const barDur = 60 / tempo * 4; // 4 beats per bar
+
+      let t = Math.max(now, scheduledUntil);
+      const endBound = now + lookAhead;
+
+      while (t < endBound && currentChordIndex < progression.length) {
+        const chordKey = progression[currentChordIndex];
+        const chordData = findChordData(chordKey);
+        if (chordData) {
+          AudioEngine.playChord(chordData.notes, t, barDur, pattern, tempo);
+          // visualize string pluck
+          StringVisual.pluckStrings([0, 1, 2, 3]);
+          // update now-playing display
+          updateNowPlaying(chordKey);
+        }
+        t += barDur;
+        currentChordIndex++;
+      }
+
+      scheduledUntil = t;
+
+      if (currentChordIndex >= progression.length) {
+        // finished
+        setTimeout(() => {
+          stop();
+          currentChordIndex = -1;
+          updateNowPlaying(null);
+          updatePlayButton();
+        }, barDur * 1000);
+      }
+    }
+
+    function findChordData(key) {
+      for (const set of Object.values(CHORD_SETS)) {
+        if (set[key]) return set[key];
+      }
+      return null;
+    }
+
+    function updateNowPlaying(chordKey) {
+      const el = document.getElementById('now-playing');
+      if (chordKey) {
+        el.innerHTML = `<span class="pulse-dot"></span> <span class="chord-name">${chordKey}</span>`;
+      } else {
+        el.innerHTML = '';
+      }
+    }
+
+    function play(progression, pattern, tempo) {
+      if (isPlaying) return;
+      if (!progression.length) return;
+
+      AudioEngine.ensureContext();
+      isPlaying = true;
+      scheduledUntil = AudioEngine.ensureContext().currentTime;
+      currentChordIndex = 0;
+
+      updatePlayButton();
+      StringVisual.start();
+
+      function tick() {
+        if (!isPlaying) return;
+        scheduleChunk(progression, pattern, tempo);
+        timerId = setTimeout(tick, 80);
+      }
+
+      tick();
+    }
+
+    function stop() {
+      isPlaying = false;
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+      AudioEngine.stopAll();
+      StringVisual.stop();
+      updatePlayButton();
+      updateNowPlaying(null);
+    }
+
+    function updatePlayButton() {
+      const btn = document.getElementById('play-btn');
+      if (isPlaying) {
+        btn.textContent = 'Stop';
+        btn.classList.add('is-playing');
+      } else {
+        btn.textContent = 'Play';
+        btn.classList.remove('is-playing');
+      }
+    }
+
+    return { play, stop, isPlaying: () => isPlaying };
+  })();
+
+  // ------------------------------------------------------------------ UI state
+
+  const state = {
+    progression: [],
+    activeTab: 'major',
+    strumPattern: 'down',
+    tempo: 100
+  };
+
+  // ------------------------------------------------------------------ DOM refs
+
+  const chordGrid = document.getElementById('chord-grid');
+  const progSlots = document.getElementById('prog-slots');
+  const progEmpty = document.getElementById('prog-empty');
+  const progClear = document.getElementById('prog-clear');
+  const playBtn = document.getElementById('play-btn');
+  const strumSelect = document.getElementById('strum-select');
+  const tempoRange = document.getElementById('tempo-range');
+  const tempoValue = document.getElementById('tempo-value');
+  const paletteTabs = document.querySelectorAll('.palette-tab');
+  const presetBtns = document.querySelectorAll('.preset-btn');
+
+  // ------------------------------------------------------------------ render chord grid
+
+  function renderChordGrid() {
+    chordGrid.innerHTML = '';
+    const chords = CHORD_SETS[state.activeTab];
+    for (const [key, data] of Object.entries(chords)) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chord-btn';
+      btn.textContent = data.label;
+      if (state.progression.includes(key)) {
+        btn.classList.add('is-in-progression');
+      }
+      btn.addEventListener('click', () => addChord(key));
+      chordGrid.appendChild(btn);
+    }
+  }
+
+  // ------------------------------------------------------------------ progression
+
+  function addChord(key) {
+    state.progression.push(key);
+    renderAll();
+  }
+
+  function removeChord(index) {
+    state.progression.splice(index, 1);
+    renderAll();
+  }
+
+  function clearProgression() {
+    state.progression = [];
+    renderAll();
+    if (Sequencer.isPlaying()) Sequencer.stop();
+  }
+
+  function setPreset(keysStr) {
+    const keys = keysStr.split(',').map(k => k.trim());
+    state.progression = keys.filter(k => {
+      for (const set of Object.values(CHORD_SETS)) {
+        if (set[k]) return true;
+      }
+      return false;
+    });
+    renderAll();
+    if (Sequencer.isPlaying()) Sequencer.stop();
+  }
+
+  // ------------------------------------------------------------------ render progression bar
+
+  function renderProgression() {
+    progSlots.innerHTML = '';
+
+    if (state.progression.length === 0) {
+      progSlots.appendChild(progEmpty);
+      progClear.hidden = true;
+      playBtn.disabled = true;
+    } else {
+      if (progEmpty.parentNode === progSlots) progEmpty.remove();
+      state.progression.forEach((key, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'prog-chip';
+        chip.innerHTML = `${key} <button class="prog-chip-remove" aria-label="Remove ${key}" data-index="${i}">&times;</button>`;
+        chip.querySelector('.prog-chip-remove').addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeChord(i);
+        });
+        progSlots.appendChild(chip);
+      });
+      progClear.hidden = false;
+      playBtn.disabled = false;
+    }
+  }
+
+  function renderAll() {
+    renderChordGrid();
+    renderProgression();
+  }
+
+  // ------------------------------------------------------------------ tab switching
+
+  paletteTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      paletteTabs.forEach(t => {
+        t.classList.remove('is-active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected', 'true');
+      state.activeTab = tab.dataset.tab;
+      renderChordGrid();
+    });
+  });
+
+  // ------------------------------------------------------------------ preset buttons
+
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setPreset(btn.dataset.preset);
+    });
+  });
+
+  // ------------------------------------------------------------------ clear
+
+  progClear.addEventListener('click', clearProgression);
+
+  // ------------------------------------------------------------------ strum select
+
+  strumSelect.addEventListener('change', () => {
+    state.strumPattern = strumSelect.value;
+  });
+
+  // ------------------------------------------------------------------ tempo
+
+  tempoRange.addEventListener('input', () => {
+    state.tempo = parseInt(tempoRange.value, 10);
+    tempoValue.textContent = state.tempo;
+  });
+
+  // ------------------------------------------------------------------ play / stop
+
+  playBtn.addEventListener('click', () => {
+    if (Sequencer.isPlaying()) {
+      Sequencer.stop();
+    } else {
+      if (state.progression.length === 0) return;
+      Sequencer.play(state.progression, state.strumPattern, state.tempo);
+    }
+  });
+
+  // ------------------------------------------------------------------ keyboard shortcuts
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      if (Sequencer.isPlaying()) {
+        Sequencer.stop();
+      } else if (state.progression.length > 0) {
+        Sequencer.play(state.progression, state.strumPattern, state.tempo);
+      }
+    }
+    if (e.key === 'Escape' && Sequencer.isPlaying()) {
+      Sequencer.stop();
+    }
+  });
+
+  // ------------------------------------------------------------------ init
+
+  renderAll();
+  StringVisual.resize();
+  </script>
+</body>
+</html>
