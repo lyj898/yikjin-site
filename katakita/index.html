@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Kata Kita — YikJin</title>
+<meta name="description" content="Kata Kita — simple, useful Bahasa Indonesia for real conversations. Learn a handful of words, hear them spoken, then practice from memory.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="../favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Cormorant+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #171613;
+    --ink-soft: #57544c;
+    --paper: #ffffff;
+    --hairline: #E9E7E0;
+    --gold: #9C8355;
+    --surface: #FBFAF9;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html, body{ height:100%; }
+
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  a{ color:inherit; }
+
+  /* ---------- header / footer ---------- */
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 2rem clamp(1.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .logo{
+    font-family: 'Parisienne', cursive;
+    font-size: 1.9rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  header nav{ display:flex; align-items:center; gap: clamp(1.25rem, 3vw, 2rem); }
+
+  header nav a{
+    color: var(--ink-soft);
+    text-decoration:none;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  header nav a:hover{ color: var(--ink); border-bottom-color: var(--ink); }
+
+  a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible{
+    outline: 1px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  footer{ display:flex; justify-content:center; padding: 3rem 2rem 2.5rem; }
+  footer p{ font-size: 0.68rem; letter-spacing: 0.1em; color: #a8a49a; text-transform: uppercase; }
+
+  /* ---------- page shell ---------- */
+
+  main{
+    flex:1;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 6vw, 4rem) 2rem;
+  }
+
+  section{ margin-bottom: clamp(2.75rem, 6vw, 3.75rem); }
+
+  .hero{ text-align:center; margin: 0 auto clamp(2.25rem, 6vw, 3rem); }
+
+  .eyebrow{
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.85rem;
+  }
+
+  .hero h1{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2.25rem, 6vw, 3rem);
+    margin-bottom: 1.1rem;
+  }
+
+  .hero .sub{ font-size: 0.95rem; line-height:1.65; color: var(--ink-soft); max-width: 500px; margin: 0 auto 1.5rem; }
+
+  .why-brief{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap: 0.6rem 1.6rem;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+  .why-brief li{
+    list-style:none;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap: 0.45rem;
+  }
+  .why-brief li::before{ content:''; width:4px; height:4px; border-radius:50%; background: var(--gold); flex-shrink:0; }
+
+  .btn-primary{
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    padding: 0.85rem 2.25rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor:pointer;
+    min-height: 44px;
+    transition: opacity 0.2s ease;
+  }
+  .btn-primary:hover{ opacity:0.85; }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .btn-secondary{
+    background:none;
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    cursor:pointer;
+    min-height: 44px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .btn-secondary:hover{ border-color: var(--gold); color: var(--gold); }
+
+  .btn-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+    color: var(--ink-soft);
+    cursor:pointer;
+    font-size: 1rem;
+    flex-shrink:0;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  }
+  .btn-icon:hover{ border-color: var(--gold); color: var(--gold); }
+  .btn-icon[hidden]{ display:none; }
+
+  /* ---------- progress strip ---------- */
+
+  .progress-strip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap: 0.75rem 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: var(--surface);
+    margin-bottom: 1.75rem;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .progress-stats{ display:flex; gap: 1.25rem; flex-wrap:wrap; }
+  .progress-stats strong{ color: var(--ink); font-weight:500; }
+
+  .stamp-row{ display:flex; gap: 0.4rem; }
+  .stamp{
+    width: 9px; height:9px;
+    border-radius:50%;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+  .stamp.is-played{ background: var(--gold); border-color: var(--gold); }
+  .stamp.is-today{ box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--hairline); }
+
+  /* ---------- word of the day ---------- */
+
+  .wotd{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 1.25rem;
+    flex-wrap:wrap;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    background: var(--paper);
+  }
+  .wotd-label{ font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+  .wotd-indo{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.5rem; color: var(--ink); }
+  .wotd-en{ font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.2rem; }
+
+  /* ---------- category grid ---------- */
+
+  .category-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.9rem;
+  }
+
+  .category-card{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap: 0.4rem;
+    text-align:left;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 1.1rem 1.25rem;
+    background: var(--paper);
+    cursor:pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+    font-family: inherit;
+    color: inherit;
+  }
+  .category-card:hover{ border-color: var(--gold); transform: translateY(-2px); }
+
+  .category-name{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 1.1rem; }
+  .category-native{ font-size: 0.72rem; color: var(--gold); letter-spacing: 0.02em; }
+  .category-blurb{ font-size: 0.78rem; color: var(--ink-soft); line-height:1.5; }
+  .category-mastery{ font-size: 0.72rem; color: #a8a49a; margin-top: 0.15rem; }
+
+  /* ---------- practice view ---------- */
+
+  #practice-view[hidden]{ display:none; }
+
+  .practice-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  .practice-title{ font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: 1.4rem; }
+
+  .phase-label{
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align:center;
+    margin-bottom: 1.5rem;
+  }
+
+  .progress-dots{ display:flex; justify-content:center; gap: 0.35rem; margin-bottom: 1.5rem; }
+  .progress-dots span{ width: 6px; height: 6px; border-radius: 50%; background: var(--hairline); }
+  .progress-dots span.is-done{ background: var(--gold); }
+  .progress-dots span.is-current{ background: var(--ink); }
+
+  .session-card{
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: clamp(1.75rem, 5vw, 2.5rem);
+    background: var(--paper);
+  }
+
+  /* ---------- flashcard (learn phase) ---------- */
+
+  .flashcard{
+    text-align:center;
+    min-height: 220px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap: 1rem;
+    cursor:pointer;
+  }
+
+  .flashcard-hint{ font-size: 0.72rem; color: #a8a49a; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  .flashcard-front{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2rem, 7vw, 2.6rem);
+    color: var(--ink);
+  }
+
+  .flashcard-back{ display:flex; flex-direction:column; align-items:center; gap: 0.6rem; }
+  .flashcard-back[hidden]{ display:none; }
+  .flashcard-en{ font-size: 1.1rem; color: var(--ink); }
+  .flashcard-example{ font-size: 0.85rem; color: var(--ink-soft); font-style: italic; max-width: 420px; }
+  .flashcard-example-en{ font-size: 0.78rem; color: #a8a49a; max-width: 420px; }
+
+  .flashcard-controls{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  /* ---------- quiz phase ---------- */
+
+  .quiz-panel{ text-align:center; }
+  .quiz-label{ font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
+  .quiz-prompt{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.5rem, 5vw, 1.9rem);
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  .choice-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap: 0.6rem;
+  }
+
+  .chip{
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.85rem;
+    cursor:pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+  }
+  .chip:hover:not(:disabled){ border-color: var(--gold); }
+  .chip:disabled{ cursor:default; }
+  .chip.is-correct{ background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .chip.is-incorrect{ border-color: var(--ink-soft); color: var(--ink-soft); text-decoration: line-through; }
+  .chip.is-reveal{ border-color: var(--gold); color: var(--gold); }
+
+  .feedback-line{
+    margin-top: 1.1rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    min-height: 1.3em;
+  }
+
+  /* ---------- complete summary ---------- */
+
+  .complete-summary{ text-align:center; }
+  .complete-score{
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1.6rem, 5vw, 2rem);
+    margin-bottom: 0.6rem;
+  }
+  .complete-note{ font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 1.75rem; line-height:1.6; }
+  .complete-actions{ display:flex; gap: 1rem; justify-content:center; flex-wrap:wrap; }
+
+  /* ---------- science section ---------- */
+
+  .science-section{
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    overflow:hidden;
+  }
+  .science-section summary{
+    cursor:pointer;
+    padding: 1.1rem 1.4rem;
+    background: var(--surface);
+    list-style:none;
+  }
+  .science-section summary::-webkit-details-marker{ display:none; }
+  .science-section summary h2{
+    display:inline;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .science-section summary::before{ content:'\25B8 '; color: var(--gold); font-family: 'Inter', sans-serif; font-style:normal; }
+  .science-section[open] summary::before{ content:'\25BE '; }
+
+  .science-body{ padding: 0.5rem 1.4rem 1.5rem; }
+  .science-principle{ margin-bottom: 1.1rem; }
+  .science-principle:last-of-type{ margin-bottom: 1.4rem; }
+  .science-principle h3{ font-size: 0.82rem; font-weight:600; margin-bottom: 0.3rem; }
+  .science-principle p{ font-size: 0.82rem; color: var(--ink-soft); line-height:1.65; }
+  .science-disclaimer{
+    font-size: 0.76rem;
+    color: #8a877e;
+    font-style: italic;
+    line-height:1.6;
+    padding-top: 1rem;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip: rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="../index.html">YikJin</a>
+    <nav aria-label="Primary">
+      <a href="../index.html">Home</a>
+      <a href="../projects.html">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ==================== HOME VIEW ==================== -->
+    <div id="home-view">
+      <section class="hero">
+        <p class="eyebrow">Bahasa Indonesia, made useful</p>
+        <h1>Kata Kita</h1>
+        <p class="sub">Real words for real conversations — the everyday Indonesian you'd actually use at a market stall, in a taxi, or meeting someone new. No grammar drills, no jargon.</p>
+        <ul class="why-brief">
+          <li>Ten minutes, real phrases</li>
+          <li>Hear every word spoken aloud</li>
+          <li>Practice brings words back, spaced out</li>
+        </ul>
+      </section>
+
+      <section aria-label="Your progress">
+        <div class="progress-strip">
+          <div class="progress-stats">
+            <span><strong id="stat-streak">0</strong> day streak</span>
+            <span><strong id="stat-known">0</strong> words known</span>
+            <span><strong id="stat-sessions">0</strong> sessions</span>
+          </div>
+          <div class="stamp-row" id="stamp-row" role="img" aria-label="Last seven days of practice"></div>
+        </div>
+      </section>
+
+      <section aria-label="Word of the day">
+        <p class="wotd-label">Word of the day</p>
+        <div class="wotd">
+          <div>
+            <p class="wotd-indo" id="wotd-indo"></p>
+            <p class="wotd-en" id="wotd-en"></p>
+          </div>
+          <button type="button" class="btn-icon" id="wotd-speak" aria-label="Hear pronunciation">&#128266;</button>
+        </div>
+      </section>
+
+      <section aria-label="Choose a category">
+        <h2 class="sr-only">Categories</h2>
+        <div class="category-grid" id="category-grid"></div>
+      </section>
+    </div>
+
+    <!-- ==================== PRACTICE VIEW ==================== -->
+    <div id="practice-view" hidden>
+      <section aria-label="Practice session">
+        <div class="practice-header">
+          <button type="button" class="btn-secondary" id="back-btn">&larr; Categories</button>
+          <p class="practice-title" id="practice-title"></p>
+          <span style="width:0"></span>
+        </div>
+
+        <p class="phase-label" id="phase-label"></p>
+        <div class="progress-dots" id="progress-dots" role="img" aria-label="Progress through this session"></div>
+
+        <div class="session-card">
+
+          <!-- learn phase -->
+          <div id="learn-phase" hidden>
+            <div class="flashcard" id="flashcard">
+              <p class="flashcard-hint" id="flashcard-hint">Tap to reveal meaning</p>
+              <p class="flashcard-front" id="flashcard-front"></p>
+              <div class="flashcard-back" id="flashcard-back" hidden>
+                <p class="flashcard-en" id="flashcard-en"></p>
+                <p class="flashcard-example" id="flashcard-example"></p>
+                <p class="flashcard-example-en" id="flashcard-example-en"></p>
+              </div>
+            </div>
+            <div class="flashcard-controls">
+              <button type="button" class="btn-icon" id="learn-speak" aria-label="Hear pronunciation">&#128266;</button>
+              <button type="button" class="btn-primary" id="learn-next-btn">Next word</button>
+            </div>
+          </div>
+
+          <!-- quiz phase -->
+          <div class="quiz-panel" id="quiz-phase" hidden>
+            <p class="quiz-label" id="quiz-label"></p>
+            <p class="quiz-prompt" id="quiz-prompt"></p>
+            <div class="choice-grid" id="choice-grid" role="group" aria-label="Answer choices"></div>
+            <p class="feedback-line" id="feedback-line" aria-hidden="true"></p>
+          </div>
+
+          <!-- complete -->
+          <div class="complete-summary" id="complete-summary" hidden>
+            <p class="complete-score" id="complete-score"></p>
+            <p class="complete-note" id="complete-note"></p>
+            <div class="complete-actions">
+              <button type="button" class="btn-primary" id="replay-btn">Practice again</button>
+              <button type="button" class="btn-secondary" id="done-btn">Choose another category</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="live-region" class="sr-only" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <details class="science-section">
+      <summary><h2>Why this works</h2></summary>
+      <div class="science-body">
+        <div class="science-principle">
+          <h3>Functional vocabulary first</h3>
+          <p>Every word here was chosen because it gets used — ordering food, asking a price, finding a toilet — not because it fits a textbook chapter. Useful words stick because you reach for them.</p>
+        </div>
+        <div class="science-principle">
+          <h3>Active recall</h3>
+          <p>Reading a translation is recognition; producing it from memory is recall, and recall is what actually strengthens a memory. Each session moves from a quick look to genuinely being tested on it.</p>
+        </div>
+        <div class="science-principle">
+          <h3>Spaced repetition</h3>
+          <p>A word or two from earlier in the session quietly returns later on, after a short delay rather than right away — a simple, well-studied way to make a word more durable than drilling it once and moving on.</p>
+        </div>
+        <div class="science-principle">
+          <h3>Hearing it spoken</h3>
+          <p>Every word can be spoken aloud using your browser's built-in voice, so you're not just learning how a word looks — you're learning how it sounds, which is what you'll actually need in conversation.</p>
+        </div>
+        <p class="science-disclaimer">Kata Kita is a small practice tool, not a certified course or a substitute for a class or a native speaker. Pronunciation is approximate — browser voices for Indonesian vary, and some devices may not offer one at all.</p>
+      </div>
+    </details>
+
+  </main>
+
+  <footer>
+    <p>&copy; <span id="year"></span> Yik Jin</p>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
